@@ -2,7 +2,7 @@ package edu.cvtc.varr;
 
 public class Dungeon {
     private String name;
-    private String level;
+    private int level;
 
     public Dungeon() {
     }
@@ -15,11 +15,11 @@ public class Dungeon {
         this.name = name;
     }
 
-    public String getLevel() {
+    public int getLevel() {
         return level;
     }
 
-    public void setLevel(String level) {
+    public void setLevel(int level) {
         this.level = level;
     }
 }

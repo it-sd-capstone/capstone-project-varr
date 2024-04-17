@@ -8,6 +8,7 @@ public class Monsters {
     private int enemyAttack;
     private int enemyDefense;
     private int enemyArmor;
+    private int expDrop;
 
     public Monsters() {}
 
@@ -66,4 +67,10 @@ public class Monsters {
     public void setEnemyArmor(int enemyArmor) {
         this.enemyArmor = enemyArmor;
     }
+
+    public void getExpDrop() {
+        this.expDrop = expDrop;
+    }
+    public void setExpDrop(int expDrop) {this.expDrop = expDrop;}
+
 }
