@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -160,5 +161,58 @@ public class GameGUI extends JFrame {
         statsMessage.append("Experience: ").append(player.getExperience()).append("\n");
 
         JOptionPane.showMessageDialog(null, statsMessage.toString(), "Player Stats", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // This is the outline for the saveGame method
+    // Will need to update to save our data
+
+    // May need to serialize data
+    public static void saveGame() {
+        // This could be made a path if we have a folder for saves
+        // Comments these out, so we don't create files
+        //File saveFile = new File("saveFile");
+
+        // Can do if (saveFile.createNewFile()) to check of the file
+        // has already been created
+
+        // Do we want to overwrite files??
+        try {
+            // Comments these out, so we don't create files
+            //BufferedWriter saveToFile = new BufferedWriter(new FileWriter("saveFile"));
+
+            // Might have to update player data from private to public, or
+            // we will need to figure a way to link up the data we want to save
+
+            // For example
+            //saveToFile.write(player.getHealth());
+            //saveToFile.append(player.getExperience());
+
+            // System.out.println("File Saved.")
+            //saveToFile.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // This is the outline for the loadGame method
+    // Will need to update to save our data
+
+    // May need to serialize data
+    public static void loadData() {
+        try {
+
+            //BufferedReader readLoadFile = new BufferedReader(new FileReader("saveFile"));
+
+            // Can load data from readLoadFile to player/game data variables
+
+            //player.setHealth(Integer.parseInt(readLoadFile.readLine()));
+
+            // readLoadFile.close();
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
