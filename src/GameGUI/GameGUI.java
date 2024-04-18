@@ -4,12 +4,10 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import edu.cvtc.varr.Character;
 import edu.cvtc.varr.Dungeon;
@@ -20,7 +18,7 @@ public class GameGUI extends JFrame {
     private Character player = new Character();
 
     private Dungeon dungeon = new Dungeon();
-    private Items items = new Items();
+
     private Monsters monsters = new Monsters();
     private ArrayList<Items> inventory = new ArrayList<>();
 
@@ -42,59 +40,36 @@ public class GameGUI extends JFrame {
         setSize(800, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
 
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
 
-        // Create a panel for displaying the stats and inventory button at the bottom
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        Border bottomBorder = BorderFactory.createLineBorder(Color.BLACK, 2);
-        bottomPanel.setBorder(BorderFactory.createTitledBorder(bottomBorder));
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        Border leftBorder = BorderFactory.createLineBorder(Color.BLACK, 2);
+        leftPanel.setBorder(BorderFactory.createTitledBorder(leftBorder, "Stats"));
 
-        Items weapon = createWeapon();
-        Items armor = createArmor();
-        Items consumables = createConsumables();
+        JPanel statsPanel = new JPanel(new GridLayout(9, 1));
+        statsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        addStatsToPanel(statsPanel);
+
+        JPanel inventoryPanel = new JPanel(new GridLayout(1, 1));
+        inventoryPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        Inventory inventory = new Inventory();
+        addInventoryToPanel(inventoryPanel, inventory);
 
 
-        inventory.add(weapon);
-        inventory.add(armor);
-        inventory.add(consumables);
+        leftPanel.add(statsPanel, BorderLayout.NORTH);
+        leftPanel.add(inventoryPanel, BorderLayout.CENTER);
 
-        // Create a button for displaying stats
-        JButton statsButton = new JButton("Stats");
-        statsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showStats();
-            }
-        });
+        UpArrowButton upArrowButton = new UpArrowButton();
 
-        // Create a button for displaying inventory
-        JButton inventoryButton = new JButton("Inventory");
-        inventoryButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showInventory();
-            }
-        });
+        upArrowButton.setPreferredSize(new Dimension(1, 1));
+        JPanel directionPanel = new JPanel(new GridLayout(1, 1));
+        directionPanel.add(upArrowButton);
 
-        // Create a button for displaying consumables
-        JButton consumablesButton = new JButton("Consumables");
-        consumablesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showConsumables();
-            }
-        });
-
-        // Add buttons to the bottom panel
-        bottomPanel.add(statsButton);
-        JPanel inventoryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        Border inventoryBorder = BorderFactory.createLineBorder(Color.BLACK, 2);
-        inventoryPanel.setBorder(BorderFactory.createTitledBorder(inventoryBorder));
-        bottomPanel.add(inventoryButton);
-        container.add(bottomPanel, BorderLayout.SOUTH);
+        container.add(leftPanel, BorderLayout.WEST);
+        container.add(directionPanel, BorderLayout.CENTER);
         setVisible(true);
     }
 
@@ -102,63 +77,25 @@ public class GameGUI extends JFrame {
         new GameGUI();
     }
 
-    private Items createWeapon() {
-        Items weapon = new Items();
-        weapon.setName("Sword");
-        weapon.setRarity("Common");
-        weapon.setType("Sword");
-        return weapon;
+    private void addStatsToPanel(JPanel statsPanel) {
+        statsPanel.add(new JLabel("Name: " + player.getName()));
+        statsPanel.add(new JLabel("Health: " + player.getHealth()));
+        statsPanel.add(new JLabel("Mana: " + player.getMana()));
+        statsPanel.add(new JLabel("Attack: " + player.getAttack()));
+        statsPanel.add(new JLabel("Armor: " + player.getArmor()));
+        statsPanel.add(new JLabel("Defense: " + player.getDefense()));
+        statsPanel.add(new JLabel("Gold: " + player.getGold()));
+        statsPanel.add(new JLabel("Level: " + player.getLevel()));
+        statsPanel.add(new JLabel("Experience: " + player.getExperience()));
     }
-
-    private Items createArmor() {
-        Items armor = new Items();
-        armor.setName("Leather Armor");
-        armor.setRarity("Common");
-        armor.setType("Armor");
-        return armor;
-    }
-
-    private Items createConsumables() {
-        Items consumables = new Items();
-        consumables.setName("Potion");
-        consumables.setRarity("Common");
-        consumables.setType("Consumables");
-        return consumables;
-    }
-
-    private void showInventory() {
-        StringBuilder inventoryMessage = new StringBuilder();
-        inventoryMessage.append("Inventory:\n");
-        for (Items item : inventory) {
-            inventoryMessage.append(item.getRarity()).append(" ").append(item.getName()).append("\n");
+    private void addInventoryToPanel(JPanel inventoryPanel, Inventory inventory) {
+        DefaultListModel<Items> model = new DefaultListModel<>();
+        for (Items item : inventory.showInventory()) {
+            model.addElement(item);
         }
-        JOptionPane.showMessageDialog(null, inventoryMessage.toString(), "Inventory", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void showConsumables() {
-        StringBuilder consumablesMessage = new StringBuilder();
-        consumablesMessage.append("Consumables:\n");
-        for (Items item : inventory) {
-            if (item.getType().equals("Consumables")) {
-                consumablesMessage.append(item.getRarity()).append(" ").append(item.getName()).append("\n");
-            }
-        }
-        JOptionPane.showMessageDialog(null, consumablesMessage.toString(), "Consumables", JOptionPane.INFORMATION_MESSAGE);
+        JList<Items> inventoryList = new JList<>(model);
+        inventoryPanel.add(inventoryList);
     }
 
 
-    private void showStats() {
-        StringBuilder statsMessage = new StringBuilder();
-        statsMessage.append("Name: ").append(player.getName()).append("\n");
-        statsMessage.append("Health: ").append(player.getHealth()).append("\n");
-        statsMessage.append("Mana: ").append(player.getMana()).append("\n");
-        statsMessage.append("Attack: ").append(player.getAttack()).append("\n");
-        statsMessage.append("Armor: ").append(player.getArmor()).append("\n");
-        statsMessage.append("Defense: ").append(player.getDefense()).append("\n");
-        statsMessage.append("Gold: ").append(player.getGold()).append("\n");
-        statsMessage.append("Level: ").append(player.getLevel()).append("\n");
-        statsMessage.append("Experience: ").append(player.getExperience()).append("\n");
-
-        JOptionPane.showMessageDialog(null, statsMessage.toString(), "Player Stats", JOptionPane.INFORMATION_MESSAGE);
-    }
 }
