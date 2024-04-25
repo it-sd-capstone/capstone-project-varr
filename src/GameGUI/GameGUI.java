@@ -5,7 +5,14 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.BorderLayout;
+<<<<<<< HEAD
 import java.awt.event.*;
+=======
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+>>>>>>> 70631ddf4a371b2fb98a0f580a52bd9f65d6ccd0
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +24,7 @@ import edu.cvtc.varr.Monsters;
 
 
 public class GameGUI extends JFrame {
-    private Character player = new Character();
+    private static Character player = new Character();
 
     private Dungeon dungeon = new Dungeon();
 
@@ -31,6 +38,7 @@ public class GameGUI extends JFrame {
 
 
     public GameGUI() {
+        /* Moved to main
         player.setHealth(100);
         player.setMana(50);
         player.setAttack(10);
@@ -39,6 +47,7 @@ public class GameGUI extends JFrame {
         player.setGold(0);
         player.setLevel(1);
         player.setExperience(0);
+         */
 
         Map<Integer, String> dungeonLevels = new HashMap<>();
         dungeonLevels.put(1, "Dwellers of Grave");
@@ -111,6 +120,19 @@ public class GameGUI extends JFrame {
     }
 
     public static void main(String[] args) {
+        player.setName("TestName");
+        player.setHealth(100);
+        player.setMana(50);
+        player.setAttack(10);
+        player.setArmor(10);
+        player.setDefense(10);
+        player.setGold(0);
+        player.setLevel(1);
+        player.setExperience(0);
+
+        //saveGame("saveFile1");
+        //loadData("saveFile1");
+
         new GameGUI();
     }
 
@@ -155,28 +177,40 @@ public class GameGUI extends JFrame {
     // Will need to update to save our data
 
     // May need to serialize data
-    public static void saveGame() {
+    public static void saveGame(String fileNameToSave) {
         // This could be made a path if we have a folder for saves
-        // Comments these out, so we don't create files
-        //File saveFile = new File("saveFile");
 
         // Can do if (saveFile.createNewFile()) to check of the file
         // has already been created
 
-        // Do we want to overwrite files??
+        // This will overwrite the file. Do we want to overwrite files??
         try {
-            // Comments these out, so we don't create files
-            //BufferedWriter saveToFile = new BufferedWriter(new FileWriter("saveFile"));
 
-            // Might have to update player data from private to public, or
-            // we will need to figure a way to link up the data we want to save
+            // create file
+            BufferedWriter saveToFile = new BufferedWriter(new FileWriter(fileNameToSave));
+
+            // Will need to expand this for dungeon levels
 
             // For example
-            //saveToFile.write(player.getHealth());
-            //saveToFile.append(player.getExperience());
-
-            // System.out.println("File Saved.")
-            //saveToFile.close();
+            saveToFile.write(player.getName());
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(player.getHealth()));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(player.getMana()));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(player.getAttack()));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(player.getArmor()));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(player.getDefense()));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(player.getGold()));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(player.getLevel()));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(player.getExperience()));
+            System.out.println("File Saved.");
+            saveToFile.close();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,17 +221,25 @@ public class GameGUI extends JFrame {
     // Will need to update to save our data
 
     // May need to serialize data
-    public static void loadData() {
+    public static void loadData(String fileNameToLoad) {
         try {
 
-            //BufferedReader readLoadFile = new BufferedReader(new FileReader("saveFile"));
+            // Read save file
+            BufferedReader readLoadFile = new BufferedReader(new FileReader(fileNameToLoad));
 
             // Can load data from readLoadFile to player/game data variables
+            player.setName(readLoadFile.readLine());
+            player.setHealth(Integer.parseInt(readLoadFile.readLine()));
+            player.setMana(Integer.parseInt(readLoadFile.readLine()));
+            player.setAttack(Integer.parseInt(readLoadFile.readLine()));
+            player.setArmor(Integer.parseInt(readLoadFile.readLine()));
+            player.setDefense(Integer.parseInt(readLoadFile.readLine()));
+            player.setGold(Integer.parseInt(readLoadFile.readLine()));
+            player.setLevel(Integer.parseInt(readLoadFile.readLine()));
+            player.setExperience(Integer.parseInt(readLoadFile.readLine()));
 
-            //player.setHealth(Integer.parseInt(readLoadFile.readLine()));
-
-            // readLoadFile.close();
-
+            System.out.println("Load successful.");
+            readLoadFile.close();
 
         } catch (Exception e) {
             e.printStackTrace();
