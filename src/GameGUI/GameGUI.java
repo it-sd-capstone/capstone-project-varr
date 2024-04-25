@@ -2,15 +2,10 @@ package GameGUI;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.BorderLayout;
-<<<<<<< HEAD
-import java.awt.Dimension;
-=======
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
->>>>>>> 1aba4cbccf8ed964e7c61315025930dd7b52f1e3
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +15,7 @@ import edu.cvtc.varr.Dungeon;
 import edu.cvtc.varr.Items;
 import edu.cvtc.varr.Monsters;
 
+
 public class GameGUI extends JFrame {
     private Character player = new Character();
 
@@ -27,6 +23,11 @@ public class GameGUI extends JFrame {
 
     private Monsters monsters = new Monsters();
     private ArrayList<Items> inventory = new ArrayList<>();
+    private ArrowButton leftArrow;
+    private ArrowButton upArrow;
+    private ArrowButton rightArrow;
+    private final int PADDING = 50;
+
 
 
     public GameGUI() {
@@ -52,6 +53,8 @@ public class GameGUI extends JFrame {
 
         JPanel leftPanel = new JPanel(new BorderLayout());
         Border leftBorder = BorderFactory.createLineBorder(Color.BLACK, 2);
+        leftPanel.setPreferredSize(new Dimension(150 + PADDING, getHeight()));
+
         leftPanel.setBorder(BorderFactory.createTitledBorder(leftBorder, "Stats"));
 
         JPanel statsPanel = new JPanel(new GridLayout(9, 1));
@@ -64,18 +67,46 @@ public class GameGUI extends JFrame {
         Inventory inventory = new Inventory();
         addInventoryToPanel(inventoryPanel, inventory);
 
-
         leftPanel.add(statsPanel, BorderLayout.NORTH);
         leftPanel.add(inventoryPanel, BorderLayout.CENTER);
 
-        UpArrowButton upArrowButton = new UpArrowButton();
+        leftArrow = new ArrowButton(50, 90, 350, 180);
+        upArrow = new ArrowButton(50, 45, 300, 270);
+        rightArrow = new ArrowButton(50, 0, 350, 0);
+        JPanel arrowPanel = new JPanel(new GridLayout(1, 3));
 
-        upArrowButton.setPreferredSize(new Dimension(1, 1));
-        JPanel directionPanel = new JPanel(new GridLayout(1, 1));
-        directionPanel.add(upArrowButton);
+        Border arrowBorder = BorderFactory.createLineBorder(Color.BLACK, 2);
+        arrowPanel.setBorder(BorderFactory.createTitledBorder(arrowBorder));
+        arrowPanel.setPreferredSize(new Dimension(150, 150));
+
+        arrowPanel.add(leftArrow);
+        arrowPanel.add(upArrow);
+        arrowPanel.add(rightArrow);
 
         container.add(leftPanel, BorderLayout.WEST);
-        container.add(directionPanel, BorderLayout.CENTER);
+        container.add(arrowPanel, BorderLayout.CENTER);
+
+        // Add action listeners to arrow buttons
+        leftArrow.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {System.out.println("Left arrow clicked");
+            }
+        });
+
+        upArrow.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Up arrow clicked");
+            }
+        });
+
+        rightArrow.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Right arrow clicked");
+            }
+        });
+
         setVisible(true);
     }
 
@@ -104,8 +135,7 @@ public class GameGUI extends JFrame {
     }
 
 
-<<<<<<< HEAD
-=======
+
     private void showStats() {
         StringBuilder statsMessage = new StringBuilder();
         statsMessage.append("Name: ").append(player.getName()).append("\n");
@@ -173,5 +203,5 @@ public class GameGUI extends JFrame {
             e.printStackTrace();
         }
     }
->>>>>>> 1aba4cbccf8ed964e7c61315025930dd7b52f1e3
+
 }
