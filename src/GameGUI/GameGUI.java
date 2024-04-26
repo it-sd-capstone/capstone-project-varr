@@ -23,13 +23,24 @@ public class GameGUI extends JFrame {
 
     private Dungeon dungeon = new Dungeon();
 
-    private Monsters monsters = new Monsters();
+    private static final Monsters monsters = new Monsters();
     private ArrayList<Items> inventory = new ArrayList<>();
     private ArrowButton leftArrow;
     private ArrowButton upArrow;
     private ArrowButton rightArrow;
     private final int PADDING = 50;
 
+    JPanel statsPanel;
+    JButton playerAttackButton = new JButton("Attack");
+
+    private static final ArrayList<String> statusEffect = new ArrayList<>();
+
+    Random rng = new Random();
+
+    int playerHealth = player.getHealth();
+    int monsterHealth = monsters.getEnemyHealth();
+
+    private static String status = "";
 
 
     public GameGUI() {
@@ -61,7 +72,7 @@ public class GameGUI extends JFrame {
 
         leftPanel.setBorder(BorderFactory.createTitledBorder(leftBorder, "Stats"));
 
-        JPanel statsPanel = new JPanel(new GridLayout(9, 1));
+        statsPanel = new JPanel(new GridLayout(9, 1));
         statsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         addStatsToPanel(statsPanel);
 
@@ -90,6 +101,24 @@ public class GameGUI extends JFrame {
         container.add(leftPanel, BorderLayout.WEST);
         container.add(arrowPanel, BorderLayout.CENTER);
 
+        // I added this to the arrow panel
+        // this can be changed and moved, but set up to test function
+        // attack button for player
+        //playerAttackButton.setBorder(BorderFactory.createTitledBorder(arrowBorder));
+        playerAttackButton.setPreferredSize(new Dimension(30,30));
+        playerAttackButton.setSize(50,50);
+        playerAttackButton.setForeground(Color.black);
+
+        // attack button listen to initiated combat method
+        playerAttackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                combat();
+            }
+        });
+
+        arrowPanel.add(playerAttackButton);
+
         // Add action listeners to arrow buttons
         leftArrow.addActionListener(new ActionListener() {
             @Override
@@ -115,6 +144,18 @@ public class GameGUI extends JFrame {
     }
 
     public static void main(String[] args) {
+
+        // added monster health for testing
+        monsters.setEnemyHealth(100);
+        monsters.setEnemyAttack(10);
+
+
+        statusEffect.add("bleed");
+        statusEffect.add("critical");
+        statusEffect.add("normal");
+        statusEffect.add("miss");
+
+
         player.setName("TestName");
         player.setHealth(100);
         player.setMana(50);
@@ -129,6 +170,8 @@ public class GameGUI extends JFrame {
         //loadData("saveFile1");
 
         new GameGUI();
+
+
     }
 
     private void addStatsToPanel(JPanel statsPanel) {
@@ -242,71 +285,60 @@ public class GameGUI extends JFrame {
     }
 
     public void combat() {
-        Scanner scanner = new Scanner(System.in);
         boolean bleed = false;
-        String status = "";
 
-        int playerHealth = player.getHealth();
-        int monsterHealth = monsters.getEnemyHealth();
+        if (status.equals("bleed")) {
+            System.out.println("You take bleed damage");
+            player.setHealth(playerHealth -= 1);
+            System.out.println("Player bHP: " + player.getHealth());
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
+        }
 
-        while (true) {
+        monsters.setEnemyHealth(monsterHealth -= player.getAttack());
+        System.out.println(monsters.getEnemyHealth());
+
+        if (monsters.getEnemyHealth() <= 0) {
+            System.out.println("You killed monster");
+            return;
+        }
 
 
-            System.out.println("Select an action.");
-            System.out.println("1. Attack\n2. ??");
-            int playerAction = scanner.nextInt();
-            if (playerAction == 1) {
-                if (status.equals("bleed")) {
-                    System.out.println("You take bleed damage");
-                    player.setHealth(playerHealth -= 1);
+        // random number to decide what type of hit monster will do
+        Random rng = new Random();
+        int selectedStatusEffect = rng.nextInt((4));
 
-                    //GameGUI.player.setHealth(playerHealth -= 1);
-                    //System.out.println("Player hp: " + GameGUI.player.getHealth());
+        status = statusEffect.get(selectedStatusEffect);
 
-                    //SwingUtilities.updateComponentTreeUI(new GameGUI());
-                }
-                monsters.setEnemyHealth(monsterHealth -= player.getAttack());
-                //System.out.println(monsters.getEnemyHealth());
-                if (monsters.getEnemyHealth()  < 0) {
-                    System.out.println("You killed monster");
-                    break;
-                }
-            }
-            else {
-                System.out.println("Other action");
-            }
-
-            ArrayList<String> statusEffect = new ArrayList<>();
-            statusEffect.add("bleed");
-            statusEffect.add("critical");
-            statusEffect.add("normal");
-
-            System.out.println("Monster attacks you.");
+        if (status.equals("bleed")) {
+            System.out.println("Monster inflicts bleed on you");
             player.setHealth(playerHealth -= monsters.getEnemyAttack());
 
 
-            //GameGUI.player.setHealth(playerHealth -= monsters.getEnemyAttack());
-            //System.out.println("Player HP: " + player.getHealth());
+        } else if (status.equals("critical")) {
+            System.out.println("Monster inflicts a critical on you.");
+            player.setHealth(playerHealth -= (int) (monsters.getEnemyAttack() * 1.5));
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
 
+        } else if (status.equals("miss")) {
+            System.out.println("Monster missed.");
+        } else {
+            System.out.println("Monster attacks you.");
+            player.setHealth(playerHealth -= monsters.getEnemyAttack());
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
+        }
 
-            //SwingUtilities.updateComponentTreeUI(new GameGUI());
-
-            Random rng = new Random();
-            int selectedStatusEffect = rng.nextInt((2 - 0 + 0));
-            System.out.println("Rng: " + selectedStatusEffect);
-            status = statusEffect.get(selectedStatusEffect);
-            System.out.println("Peek status : " + status);
-
-            if (status.equals("bleed")) {
-                System.out.println("Monster inflicts bleed on you");
-            }
-
-            if (player.getHealth() == 0) {
-                System.out.println("you died");
-                break;
-            }
-
+        if (player.getHealth() <= 0) {
+            System.out.println("You died");
+            return;
         }
     }
-
 }
