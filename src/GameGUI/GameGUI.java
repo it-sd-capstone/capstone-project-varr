@@ -30,6 +30,11 @@ public class GameGUI extends JFrame {
     private ArrowButton rightArrow;
     private final int PADDING = 50;
 
+    private static boolean  bleed = false;
+    private static int bleedCount = 0;
+    private static final int playerBleedDamageValue = 1;
+    private static final double playerCriticalDamageValue = 1.5;
+
     JPanel statsPanel;
     JButton playerAttackButton = new JButton("Attack");
 
@@ -150,10 +155,10 @@ public class GameGUI extends JFrame {
         monsters.setEnemyAttack(10);
 
 
-        statusEffect.add("bleed");
-        statusEffect.add("critical");
-        statusEffect.add("normal");
-        statusEffect.add("miss");
+        statusEffect.add("bleedHit");
+        statusEffect.add("criticalHit");
+        statusEffect.add("normalHit");
+        statusEffect.add("missHit");
 
 
         player.setName("TestName");
@@ -285,51 +290,87 @@ public class GameGUI extends JFrame {
     }
 
     public void combat() {
-        boolean bleed = false;
 
-        if (status.equals("bleed")) {
+        // if bleed is inflicted, player will take damage on their turn
+        // player will only take 3 turns of bleed damage
+        if (bleed) {
+            bleedCount += 1;
+
+            // message to user
             System.out.println("You take bleed damage");
-            player.setHealth(playerHealth -= 1);
-            System.out.println("Player bHP: " + player.getHealth());
-            statsPanel.removeAll();
-            statsPanel.revalidate();
-            statsPanel.repaint();
-            addStatsToPanel(statsPanel);
+
+            // player bleed damage
+            player.setHealth(playerHealth -= playerBleedDamageValue);
+
+            // only 3 turns of bleed damage
+           if (bleedCount == 3) {
+               bleedCount = 0;
+               bleed = false;
+           }
+
+           // reset GUI to update player attributes
+           statsPanel.removeAll();
+           statsPanel.revalidate();
+           statsPanel.repaint();
+           addStatsToPanel(statsPanel);
+
         }
 
+        System.out.println("You hit monster.");
         monsters.setEnemyHealth(monsterHealth -= player.getAttack());
-        System.out.println(monsters.getEnemyHealth());
 
         if (monsters.getEnemyHealth() <= 0) {
+
+            // message to user
             System.out.println("You killed monster");
             return;
         }
-
 
         // random number to decide what type of hit monster will do
         Random rng = new Random();
         int selectedStatusEffect = rng.nextInt((4));
 
+        // using random number to select a status type
+        // status types are bleedHit, criticalHit, missHit, and normalHit
         status = statusEffect.get(selectedStatusEffect);
+        System.out.println(status);
 
-        if (status.equals("bleed")) {
+        if (status.equals("bleedHit")) {
+            // message to user
             System.out.println("Monster inflicts bleed on you");
+
+            // player takes hit and will take bleed damage on their turn
             player.setHealth(playerHealth -= monsters.getEnemyAttack());
 
-
-        } else if (status.equals("critical")) {
-            System.out.println("Monster inflicts a critical on you.");
-            player.setHealth(playerHealth -= (int) (monsters.getEnemyAttack() * 1.5));
+            // reset GUI to update player attributes
             statsPanel.removeAll();
             statsPanel.revalidate();
             statsPanel.repaint();
             addStatsToPanel(statsPanel);
 
-        } else if (status.equals("miss")) {
+            // bleed status
+            bleed = true;
+
+        } else if (status.equals("criticalHit")) {
+            // message to user
+            System.out.println("Monster inflicts a critical on you.");
+            player.setHealth(playerHealth -= (int) (monsters.getEnemyAttack() * playerCriticalDamageValue));
+
+            // reset GUI to update player attributes
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
+
+        } else if (status.equals("missHit")) {
+            // message to user
             System.out.println("Monster missed.");
         } else {
-            System.out.println("Monster attacks you.");
+            // message to user
+            System.out.println("Monster hit you.");
             player.setHealth(playerHealth -= monsters.getEnemyAttack());
+
+            // reset GUI to update player attributes
             statsPanel.removeAll();
             statsPanel.revalidate();
             statsPanel.repaint();
@@ -337,6 +378,7 @@ public class GameGUI extends JFrame {
         }
 
         if (player.getHealth() <= 0) {
+            // message to user
             System.out.println("You died");
             return;
         }
