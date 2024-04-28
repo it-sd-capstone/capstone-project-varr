@@ -30,7 +30,7 @@ public class GameGUI extends JFrame {
     private ArrowButton rightArrow;
 
 
-    private static boolean  bleed = false;
+    private static boolean bleed = false;
     private static int bleedCount = 0;
     private static final int playerBleedDamageValue = 1;
     private static final double playerCriticalDamageValue = 1.5;
@@ -76,12 +76,11 @@ public class GameGUI extends JFrame {
         Border leftBorder = BorderFactory.createLineBorder(Color.BLACK, 2);
         leftPanel.setBorder(BorderFactory.createTitledBorder(leftBorder, "Stats"));
 
-<<<<<<< HEAD
+
         // STATS
-        JPanel statsPanel = new JPanel(new GridLayout(9, 1));
-=======
+
         statsPanel = new JPanel(new GridLayout(9, 1));
->>>>>>> 9959351fa5d7ae167de5cc47be50e9638f6716de
+
         statsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         addStatsToPanel(statsPanel);
 
@@ -124,8 +123,8 @@ public class GameGUI extends JFrame {
         // this can be changed and moved, but set up to test function
         // attack button for player
         //playerAttackButton.setBorder(BorderFactory.createTitledBorder(arrowBorder));
-        playerAttackButton.setPreferredSize(new Dimension(30,30));
-        playerAttackButton.setSize(50,50);
+        playerAttackButton.setPreferredSize(new Dimension(30, 30));
+        playerAttackButton.setSize(50, 50);
         playerAttackButton.setForeground(Color.black);
 
         // attack button listen to initiated combat method
@@ -141,7 +140,8 @@ public class GameGUI extends JFrame {
         // Add action listeners to arrow buttons
         leftArrow.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {System.out.println("Left arrow clicked");
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Left arrow clicked");
             }
         });
 
@@ -161,6 +161,7 @@ public class GameGUI extends JFrame {
 
         setVisible(true);
     }
+
 
     public static void main(String[] args) {
 
@@ -316,65 +317,19 @@ public class GameGUI extends JFrame {
             // player bleed damage
             player.setHealth(playerHealth -= playerBleedDamageValue);
 
+
+
             // only 3 turns of bleed damage
-           if (bleedCount == 3) {
-               bleedCount = 0;
-               bleed = false;
-           }
-
-<<<<<<< HEAD
-                    GameGUI.player.setHealth(playerHealth -= 1);
-                    System.out.println("Player hp: " + GameGUI.player.getHealth());
-
-                    SwingUtilities.updateComponentTreeUI(new GameGUI());
-                }
-                monsters.setEnemyHealth(monsterHealth -= player.getAttack());
-                System.out.println(monsters.getEnemyHealth());
-                if (monsters.getEnemyHealth()  < 0) {
-                    System.out.println("You killed monster");
-                    break;
-                }
-            }
-            else {
-                System.out.println("Other action");
+            if (bleedCount == 3) {
+                bleedCount = 0;
+                bleed = false;
             }
 
-            ArrayList<String> statusEffect = new ArrayList<>();
-            statusEffect.add("bleed");
-            statusEffect.add("critical");
-            statusEffect.add("normal");
-
-            System.out.println("Monster attacks you.");
-            player.setHealth(playerHealth -= monsters.getEnemyAttack());
-
-
-            //GameGUI.player.setHealth(playerHealth -= monsters.getEnemyAttack());
-            //System.out.println("Player HP: " + player.getHealth());
-
-
-            SwingUtilities.updateComponentTreeUI(new GameGUI());
-
-            Random rng = new Random();
-            int selectedStatusEffect = rng.nextInt((2 - 0 + 0));
-            System.out.println("Rng: " + selectedStatusEffect);
-            status = statusEffect.get(selectedStatusEffect);
-            System.out.println("Peek status : " + status);
-
-            if (status.equals("bleed")) {
-                System.out.println("Monster inflicts bleed on you");
-            }
-
-            if (player.getHealth() == 0) {
-                System.out.println("you died");
-                break;
-            }
-=======
-           // reset GUI to update player attributes
-           statsPanel.removeAll();
-           statsPanel.revalidate();
-           statsPanel.repaint();
-           addStatsToPanel(statsPanel);
->>>>>>> 9959351fa5d7ae167de5cc47be50e9638f6716de
+            // reset GUI to update player attributes
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
 
         }
 
@@ -395,7 +350,7 @@ public class GameGUI extends JFrame {
         // using random number to select a status type
         // status types are bleedHit, criticalHit, missHit, and normalHit
         status = statusEffect.get(selectedStatusEffect);
-        //System.out.println(status);
+        System.out.println(status);
 
         if (status.equals("bleedHit")) {
             // message to user
@@ -450,4 +405,5 @@ public class GameGUI extends JFrame {
             return;
         }
     }
+
 }
