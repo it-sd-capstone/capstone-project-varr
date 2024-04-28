@@ -28,7 +28,7 @@ public class GameGUI extends JFrame {
     private ArrowButton leftArrow;
     private ArrowButton upArrow;
     private ArrowButton rightArrow;
-    private final int PADDING = 50;
+
 
 
 
@@ -44,6 +44,7 @@ public class GameGUI extends JFrame {
         player.setExperience(0);
          */
 
+
         Map<Integer, String> dungeonLevels = new HashMap<>();
         dungeonLevels.put(1, "Dwellers of Grave");
 
@@ -57,38 +58,47 @@ public class GameGUI extends JFrame {
 
         JPanel leftPanel = new JPanel(new BorderLayout());
         Border leftBorder = BorderFactory.createLineBorder(Color.BLACK, 2);
-        leftPanel.setPreferredSize(new Dimension(150 + PADDING, getHeight()));
-
         leftPanel.setBorder(BorderFactory.createTitledBorder(leftBorder, "Stats"));
 
+        // STATS
         JPanel statsPanel = new JPanel(new GridLayout(9, 1));
         statsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         addStatsToPanel(statsPanel);
 
+        // INVENTORY
         JPanel inventoryPanel = new JPanel(new GridLayout(1, 1));
         inventoryPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
         Inventory inventory = new Inventory();
-        addInventoryToPanel(inventoryPanel, inventory);
 
+        addInventoryToPanel(inventoryPanel, inventory);
         leftPanel.add(statsPanel, BorderLayout.NORTH);
         leftPanel.add(inventoryPanel, BorderLayout.CENTER);
 
-        leftArrow = new ArrowButton(50, 90, 350, 180);
-        upArrow = new ArrowButton(50, 45, 300, 270);
-        rightArrow = new ArrowButton(50, 0, 350, 0);
-        JPanel arrowPanel = new JPanel(new GridLayout(1, 3));
-
+        // ARROWS
+        JPanel arrowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        leftArrow = new ArrowButton(50, 0, 0, 180);
+        upArrow = new ArrowButton(50, 0, -20, 270);
+        rightArrow = new ArrowButton(50, 0, 0, 0);
         Border arrowBorder = BorderFactory.createLineBorder(Color.BLACK, 2);
         arrowPanel.setBorder(BorderFactory.createTitledBorder(arrowBorder));
-        arrowPanel.setPreferredSize(new Dimension(150, 150));
-
         arrowPanel.add(leftArrow);
         arrowPanel.add(upArrow);
         arrowPanel.add(rightArrow);
 
+        // GAME TEXT
+        JPanel gameTextPanel = new JPanel();
+        gameTextPanel.setBackground(Color.WHITE);
+        gameTextPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        container.add(gameTextPanel, BorderLayout.CENTER);
+
+        JLabel gameTextLabel = new JLabel("TEST");
+        gameTextLabel.setFont(new Font("Serif", Font.BOLD, 24));
+        gameTextPanel.add(gameTextLabel);
+
+
+        container.add(arrowPanel, BorderLayout.SOUTH);
         container.add(leftPanel, BorderLayout.WEST);
-        container.add(arrowPanel, BorderLayout.CENTER);
+
 
         // Add action listeners to arrow buttons
         leftArrow.addActionListener(new ActionListener() {
@@ -260,13 +270,13 @@ public class GameGUI extends JFrame {
                     System.out.println("You take bleed damage");
                     player.setHealth(playerHealth -= 1);
 
-                    //GameGUI.player.setHealth(playerHealth -= 1);
-                    //System.out.println("Player hp: " + GameGUI.player.getHealth());
+                    GameGUI.player.setHealth(playerHealth -= 1);
+                    System.out.println("Player hp: " + GameGUI.player.getHealth());
 
-                    //SwingUtilities.updateComponentTreeUI(new GameGUI());
+                    SwingUtilities.updateComponentTreeUI(new GameGUI());
                 }
                 monsters.setEnemyHealth(monsterHealth -= player.getAttack());
-                //System.out.println(monsters.getEnemyHealth());
+                System.out.println(monsters.getEnemyHealth());
                 if (monsters.getEnemyHealth()  < 0) {
                     System.out.println("You killed monster");
                     break;
@@ -289,7 +299,7 @@ public class GameGUI extends JFrame {
             //System.out.println("Player HP: " + player.getHealth());
 
 
-            //SwingUtilities.updateComponentTreeUI(new GameGUI());
+            SwingUtilities.updateComponentTreeUI(new GameGUI());
 
             Random rng = new Random();
             int selectedStatusEffect = rng.nextInt((2 - 0 + 0));
