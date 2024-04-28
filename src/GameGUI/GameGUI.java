@@ -333,7 +333,7 @@ public class GameGUI extends JFrame {
         // using random number to select a status type
         // status types are bleedHit, criticalHit, missHit, and normalHit
         status = statusEffect.get(selectedStatusEffect);
-        System.out.println(status);
+        //System.out.println(status);
 
         if (status.equals("bleedHit")) {
             // message to user
@@ -380,6 +380,11 @@ public class GameGUI extends JFrame {
         if (player.getHealth() <= 0) {
             // message to user
             System.out.println("You died");
+            player.setHealth(0);
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
             return;
         }
     }
