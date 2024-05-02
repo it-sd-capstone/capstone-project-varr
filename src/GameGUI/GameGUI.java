@@ -37,6 +37,7 @@ public class GameGUI extends JFrame {
 
     JPanel statsPanel;
     JButton playerAttackButton = new JButton("Attack");
+    JLabel gameTextLabel;
 
     private static final ArrayList<String> statusEffect = new ArrayList<>();
 
@@ -110,7 +111,7 @@ public class GameGUI extends JFrame {
         gameTextPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         container.add(gameTextPanel, BorderLayout.CENTER);
 
-        JLabel gameTextLabel = new JLabel("TEST");
+        gameTextLabel = new JLabel("TEST");
         gameTextLabel.setFont(new Font("Serif", Font.BOLD, 24));
         gameTextPanel.add(gameTextLabel);
 
@@ -313,6 +314,7 @@ public class GameGUI extends JFrame {
 
             // message to user
             System.out.println("You take bleed damage");
+            gameTextLabel.setText("You take bleed damage.");
 
             // player bleed damage
             player.setHealth(playerHealth -= playerBleedDamageValue);
@@ -334,6 +336,8 @@ public class GameGUI extends JFrame {
         }
 
         System.out.println("You hit monster.");
+        gameTextLabel.setText("You take bleed damage.");
+
         monsters.setEnemyHealth(monsterHealth -= player.getAttack());
 
         if (monsters.getEnemyHealth() <= 0) {
