@@ -1,17 +1,25 @@
-package GameGUI;
+package edu.cvtc.varr;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Room {
     private String description;
-
+    private boolean monsterEncounter;
     private Map<String, Room> exits;
 
-    public Room(String description) {
+    public Room(String description, boolean monsterEncounter) {
         this.description = description;
-
+        this.monsterEncounter = monsterEncounter;
         this.exits = new HashMap<>();
+    }
+    public Room(boolean monsterEncounter) {
+        this.monsterEncounter = monsterEncounter;
+
+    }
+
+    public boolean monsterEncounter() {
+        return monsterEncounter;
     }
 
     public void addExit(String direction, Room room) {
@@ -26,4 +34,6 @@ public class Room {
     public Room getExit(String direction) {
         return exits.get(direction);
     }
+
+
 }
