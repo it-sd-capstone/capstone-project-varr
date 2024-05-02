@@ -4,10 +4,7 @@ public class Monsters {
     private String name;
     private String level;
     private int enemyHealth;
-    private int enemyMana;
     private int enemyAttack;
-    private int enemyDefense;
-    private int enemyArmor;
     private int expDrop;
 
     public Monsters() {}
@@ -36,13 +33,6 @@ public class Monsters {
         this.enemyHealth = enemyHealth;
     }
 
-    public int getEnemyMana() {
-        return enemyMana;
-    }
-
-    public void setEnemyMana(int enemyMana) {
-        this.enemyMana = enemyMana;
-    }
 
     public int getEnemyAttack() {
         return enemyAttack;
@@ -52,21 +42,6 @@ public class Monsters {
         this.enemyAttack = enemyAttack;
     }
 
-    public int getEnemyDefense() {
-        return enemyDefense;
-    }
-
-    public void setEnemyDefense(int enemyDefense) {
-        this.enemyDefense = enemyDefense;
-    }
-
-    public int getEnemyArmor() {
-        return enemyArmor;
-    }
-
-    public void setEnemyArmor(int enemyArmor) {
-        this.enemyArmor = enemyArmor;
-    }
 
     public void getExpDrop() {
         this.expDrop = expDrop;
