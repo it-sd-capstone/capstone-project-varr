@@ -22,7 +22,9 @@ public class GameGUI extends JFrame {
     private JTextArea textArea;
 
     private MonsterEncounter  monsterEncounter;
-    private static final Monsters monsters = new Monsters();
+    private Monsters monsters = new Monsters();
+    private Monsters bossMonster = new Monsters();
+    boolean bossCombat = false;
     private ArrayList<Items> inventory = new ArrayList<>();
     private ArrowButton leftArrow;
     private ArrowButton upArrow;
@@ -37,13 +39,15 @@ public class GameGUI extends JFrame {
     JPanel statsPanel;
     JButton playerAttackButton = new JButton("Attack");
     JLabel gameTextLabel;
+    JLabel playerTextLabel;
 
     private static final ArrayList<String> statusEffect = new ArrayList<>();
 
     Random rng = new Random();
 
     int playerHealth = player.getHealth();
-    int monsterHealth = monsters.getEnemyHealth();
+    int monsterHealth;
+    int bossMonsterHealth;
 
     private static String status = "";
 
@@ -100,17 +104,21 @@ public class GameGUI extends JFrame {
         arrowPanel.add(upArrow);
         arrowPanel.add(rightArrow);
 
-        // GAME TEXT
+        // GAME TEXT PANEL
         JPanel gameTextPanel = new JPanel();
         gameTextPanel.setBackground(Color.WHITE);
         gameTextPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         container.add(gameTextPanel, BorderLayout.CENTER);
 
+        // PLAYER TEXT
+        playerTextLabel = new JLabel();
+        playerTextLabel.setFont(new Font("Serif", Font.BOLD, 21));
+        playerTextLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        playerTextLabel.setHorizontalAlignment(JLabel.CENTER);
+        playerTextLabel.setVerticalAlignment(JLabel.CENTER);
+        gameTextPanel.add(playerTextLabel);
 
-        gameTextLabel = new JLabel("TEST");
-        gameTextLabel.setFont(new Font("Serif", Font.BOLD, 24));
-        gameTextPanel.add(gameTextLabel);
-
+        // GAME TEXT
         textArea = new JTextArea();
         textArea.setFont(new Font("Arial", Font.PLAIN, 16));
         textArea.setLineWrap(true);
@@ -118,10 +126,11 @@ public class GameGUI extends JFrame {
         textArea.setWrapStyleWord(true);
         textArea.setEditable(false);
         textArea.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-
-
         gameTextPanel.add(textArea);
+
+        gameTextLabel = new JLabel("TEST");
+        gameTextLabel.setFont(new Font("Serif", Font.BOLD, 24));
+        gameTextPanel.add(gameTextLabel);
 
 
         // SAVE/LOAD
@@ -263,12 +272,15 @@ public class GameGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Left arrow clicked");
+                gameTextLabel.setText(" ");
                 Room exitRoom = currentRoom.getExit("west");
                 if (exitRoom!= null) {
                     currentRoom = exitRoom;
                     textArea.setText(currentRoom.getDescription());
+                    checkForEncounter(dungeon,currentRoom);
                 } else {
-                    System.out.println("You can't go that way.");
+                    //System.out.println("You can't go that way.");
+                    gameTextLabel.setText("You can't go that way.");
                 }
             }
         });
@@ -278,12 +290,15 @@ public class GameGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Up arrow clicked");
+                gameTextLabel.setText(" ");
                 Room exitRoom = currentRoom.getExit("north");
                 if (exitRoom!= null) {
                     currentRoom = exitRoom;
                     textArea.setText(currentRoom.getDescription());
+                    checkForEncounter(dungeon,currentRoom);
                 } else {
-                    System.out.println("You can't go that way.");
+                    //System.out.println("You can't go that way.");
+                    gameTextLabel.setText("You can't go that way.");
                 }
             }
         });
@@ -293,35 +308,30 @@ public class GameGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Right arrow clicked");
+                gameTextLabel.setText(" ");
                 Room exitRoom = currentRoom.getExit("east");
                 if (exitRoom!= null) {
                     currentRoom = exitRoom;
                     textArea.setText(currentRoom.getDescription());
+                    checkForEncounter(dungeon,currentRoom);
                 } else {
-                    System.out.println("You can't go that way.");
+                   // System.out.println("You can't go that way.");
+                    gameTextLabel.setText("You can't go that way.");
                 }
             }
         });
 
         // MONSTER ENCOUNTER
-        monsterEncounter = new MonsterEncounter(dungeon,currentRoom);
+        //monsterEncounter = new MonsterEncounter(dungeon,currentRoom);
 
 
         // I added this to the arrow panel
         // this can be changed and moved, but set up to test function
         // attack button for player
-        //playerAttackButton.setBorder(BorderFactory.createTitledBorder(arrowBorder));
         playerAttackButton.setPreferredSize(new Dimension(100, 30));
         playerAttackButton.setSize(50, 50);
         playerAttackButton.setForeground(Color.black);
-
-        // attack button listen to initiated combat method
-        playerAttackButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                combat();
-            }
-        });
+        playerAttackButton.setVisible(false);
 
         arrowPanel.add(playerAttackButton);
         container.add(arrowPanel, BorderLayout.SOUTH);
@@ -336,8 +346,6 @@ public class GameGUI extends JFrame {
     public static void main(String[] args) {
 
         // added monster health for testing
-        monsters.setEnemyHealth(100);
-        monsters.setEnemyAttack(10);
 
 
         statusEffect.add("bleedHit");
@@ -405,7 +413,7 @@ public class GameGUI extends JFrame {
     // Will need to update to save our data
 
     // May need to serialize data
-    public static void saveGame(String fileNameToSave) {
+    public void saveGame(String fileNameToSave) {
         // This could be made a path if we have a folder for saves
 
         // Can do if (saveFile.createNewFile()) to check of the file
@@ -437,7 +445,10 @@ public class GameGUI extends JFrame {
             saveToFile.append(String.valueOf(player.getLevel()));
             saveToFile.newLine();
             saveToFile.append(String.valueOf(player.getExperience()));
-            System.out.println("File Saved.");
+            //System.out.println("File Saved.");
+            gameTextLabel.setText("File saved successfully.");
+            gameTextLabel.revalidate();
+            gameTextLabel.repaint();
             saveToFile.close();
 
         } catch (Exception e) {
@@ -449,7 +460,7 @@ public class GameGUI extends JFrame {
     // Will need to update to save our data
 
     // May need to serialize data
-    public static void loadData(String fileNameToLoad) {
+    public void loadData(String fileNameToLoad) {
         try {
 
             // Read save file
@@ -466,15 +477,23 @@ public class GameGUI extends JFrame {
             player.setLevel(Integer.parseInt(readLoadFile.readLine()));
             player.setExperience(Integer.parseInt(readLoadFile.readLine()));
 
-            System.out.println("Load successful.");
+            //System.out.println("Load successful.");
+            gameTextLabel.setText("Load successful.");
             readLoadFile.close();
 
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
+
         } catch (Exception e) {
-            e.printStackTrace();
+            gameTextLabel.setText("There are no files available for load.");
         }
     }
 
     public void combat() {
+
+        monsterHealth = monsters.getEnemyHealth();
 
         // if bleed is inflicted, player will take damage on their turn
         // player will only take 3 turns of bleed damage
@@ -482,13 +501,15 @@ public class GameGUI extends JFrame {
             bleedCount += 1;
 
             // message to user
-            System.out.println("You take bleed damage");
-            gameTextLabel.setText("You take bleed damage.");
+            playerTextLabel.setText("You take bleed damage. You hit the " + monsters.getName() + ".");
+            playerTextLabel.revalidate();
+            playerTextLabel.repaint();
+
+            // damage to monster
+            monsters.setEnemyHealth(monsterHealth -= player.getAttack());
 
             // player bleed damage
             player.setHealth(playerHealth -= playerBleedDamageValue);
-
-
 
             // only 3 turns of bleed damage
             if (bleedCount == 3) {
@@ -502,17 +523,26 @@ public class GameGUI extends JFrame {
             statsPanel.repaint();
             addStatsToPanel(statsPanel);
 
+        } else {
+            playerTextLabel.setText("You hit the " + monsters.getName() + ".");
+            playerTextLabel.revalidate();
+            playerTextLabel.repaint();
+
+            monsters.setEnemyHealth(monsterHealth -= player.getAttack());
         }
-
-        System.out.println("You hit monster.");
-        gameTextLabel.setText("You take bleed damage.");
-
-        monsters.setEnemyHealth(monsterHealth -= player.getAttack());
-
         if (monsters.getEnemyHealth() <= 0) {
 
             // message to user
-            System.out.println("You killed monster");
+            playerTextLabel.setText("");
+            playerTextLabel.revalidate();
+            playerTextLabel.repaint();
+            gameTextLabel.setText("You killed " + monsters.getName());
+            gameTextLabel.revalidate();
+            gameTextLabel.repaint();
+            playerAttackButton.setVisible(false);
+            rightArrow.setVisible(true);
+            upArrow.setVisible(true);
+            leftArrow.setVisible(true);
             return;
         }
 
@@ -523,11 +553,12 @@ public class GameGUI extends JFrame {
         // using random number to select a status type
         // status types are bleedHit, criticalHit, missHit, and normalHit
         status = statusEffect.get(selectedStatusEffect);
-        System.out.println(status);
 
         if (status.equals("bleedHit")) {
             // message to user
-            System.out.println("Monster inflicts bleed on you");
+            gameTextLabel.setText(monsters.getName() + " inflicts a bleeding hit.");
+            gameTextLabel.revalidate();
+            gameTextLabel.repaint();
 
             // player takes hit and will take bleed damage on their turn
             player.setHealth(playerHealth -= monsters.getEnemyAttack());
@@ -543,7 +574,9 @@ public class GameGUI extends JFrame {
 
         } else if (status.equals("criticalHit")) {
             // message to user
-            System.out.println("Monster inflicts a critical on you.");
+            gameTextLabel.setText( monsters.getName() + " inflicts a critical hit.");
+            gameTextLabel.revalidate();
+            gameTextLabel.repaint();
             player.setHealth(playerHealth -= (int) (monsters.getEnemyAttack() * playerCriticalDamageValue));
 
             // reset GUI to update player attributes
@@ -554,10 +587,14 @@ public class GameGUI extends JFrame {
 
         } else if (status.equals("missHit")) {
             // message to user
-            System.out.println("Monster missed.");
+            gameTextLabel.setText(monsters.getName() + "'s hit missed.");
+            gameTextLabel.revalidate();
+            gameTextLabel.repaint();
         } else {
             // message to user
-            System.out.println("Monster hit you.");
+            gameTextLabel.setText("     " + monsters.getName() + " hit you.");
+            gameTextLabel.revalidate();
+
             player.setHealth(playerHealth -= monsters.getEnemyAttack());
 
             // reset GUI to update player attributes
@@ -568,14 +605,225 @@ public class GameGUI extends JFrame {
         }
 
         if (player.getHealth() <= 0) {
+
             // message to user
-            System.out.println("You died");
             player.setHealth(0);
             statsPanel.removeAll();
             statsPanel.revalidate();
             statsPanel.repaint();
             addStatsToPanel(statsPanel);
+            playerTextLabel.setText(" ");
+            playerTextLabel.revalidate();
+            playerTextLabel.repaint();
+            gameTextLabel.setText(monsters.getName() + " killed you.");
+            gameTextLabel.revalidate();
+            gameTextLabel.repaint();
+            playerAttackButton.setVisible(false);
+            rightArrow.setVisible(true);
+            upArrow.setVisible(true);
+            leftArrow.setVisible(true);
             return;
+        }
+    }
+
+    public void bossCombat() {
+
+        bossMonsterHealth = bossMonster.getEnemyHealth();
+
+        // if bleed is inflicted, player will take damage on their turn
+        // player will only take 3 turns of bleed damage
+        if (bleed) {
+            bleedCount += 1;
+
+            // message to user
+            playerTextLabel.setText("You take bleed damage. You hit the " + bossMonster.getName() + ".");
+            playerTextLabel.revalidate();
+            playerTextLabel.repaint();
+
+            // damage to monster
+            bossMonster.setEnemyHealth(bossMonsterHealth -= player.getAttack());
+
+            // player bleed damage
+            player.setHealth(playerHealth -= playerBleedDamageValue);
+
+            // only 3 turns of bleed damage
+            if (bleedCount == 3) {
+                bleedCount = 0;
+                bleed = false;
+            }
+
+            // reset GUI to update player attributes
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
+
+        } else {
+            playerTextLabel.setText("You hit the " + bossMonster.getName() + ".");
+            playerTextLabel.revalidate();
+            playerTextLabel.repaint();
+
+            bossMonster.setEnemyHealth(bossMonsterHealth -= player.getAttack());
+        }
+        if (bossMonster.getEnemyHealth() <= 0) {
+
+            // message to user
+            playerTextLabel.setText("");
+            playerTextLabel.revalidate();
+            playerTextLabel.repaint();
+            gameTextLabel.setText("You killed " + bossMonster.getName());
+            gameTextLabel.revalidate();
+            gameTextLabel.repaint();
+            playerAttackButton.setVisible(false);
+            rightArrow.setVisible(true);
+            upArrow.setVisible(true);
+            leftArrow.setVisible(true);
+            return;
+        }
+
+        // random number to decide what type of hit monster will do
+        Random rng = new Random();
+        int selectedStatusEffect = rng.nextInt((4));
+
+        // using random number to select a status type
+        // status types are bleedHit, criticalHit, missHit, and normalHit
+        status = statusEffect.get(selectedStatusEffect);
+
+        if (status.equals("bleedHit")) {
+            // message to user
+            gameTextLabel.setText(bossMonster.getName() + " inflicts a bleeding hit.");
+            gameTextLabel.revalidate();
+            gameTextLabel.repaint();
+
+            // player takes hit and will take bleed damage on their turn
+            player.setHealth(playerHealth -= bossMonster.getEnemyAttack());
+
+            // reset GUI to update player attributes
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
+
+            // bleed status
+            bleed = true;
+
+        } else if (status.equals("criticalHit")) {
+            // message to user
+            gameTextLabel.setText( bossMonster.getName() + " inflicts a critical hit.");
+            gameTextLabel.revalidate();
+            gameTextLabel.repaint();
+            player.setHealth(playerHealth -= (int) (bossMonster.getEnemyAttack() * playerCriticalDamageValue));
+
+            // reset GUI to update player attributes
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
+
+        } else if (status.equals("missHit")) {
+            // message to user
+            gameTextLabel.setText(bossMonster.getName() + "'s hit missed.");
+            gameTextLabel.revalidate();
+            gameTextLabel.repaint();
+        } else {
+            // message to user
+            gameTextLabel.setText("     " + bossMonster.getName() + " hit you.");
+            gameTextLabel.revalidate();
+
+            player.setHealth(playerHealth -= bossMonster.getEnemyAttack());
+
+            // reset GUI to update player attributes
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
+        }
+
+        if (player.getHealth() <= 0) {
+
+            // message to user
+            player.setHealth(0);
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
+            playerTextLabel.setText(" ");
+            playerTextLabel.revalidate();
+            playerTextLabel.repaint();
+            gameTextLabel.setText(bossMonster.getName() + " killed you.");
+            gameTextLabel.revalidate();
+            gameTextLabel.repaint();
+            playerAttackButton.setVisible(false);
+            rightArrow.setVisible(true);
+            upArrow.setVisible(true);
+            leftArrow.setVisible(true);
+            return;
+        }
+    }
+
+
+    public void checkForEncounter(Dungeon dungeon, Room currentRoom) {
+
+        this.dungeon = dungeon;
+        this.currentRoom = currentRoom;
+       int encounterRng = new Random().nextInt(2);
+       if (currentRoom == dungeon.getRoom(0,1)) {
+           loadBoss();
+           bossCombat = true;
+           gameTextLabel.setText("<html>You have reach the boss of this level.<br> Prepare to battle " + bossMonster.getName() + ".</html>");
+           playerAttackButton.setVisible(true);
+           rightArrow.setVisible(false);
+           leftArrow.setVisible(false);
+           upArrow.setVisible(false);
+
+       } else {
+           if (encounterRng == 0) {
+               loadMonster();
+               gameTextLabel.setText("You ran into a stinky " + monsters.getName() + ".");
+               playerAttackButton.setVisible(true);
+               rightArrow.setVisible(false);
+               leftArrow.setVisible(false);
+               upArrow.setVisible(false);
+
+           }
+       }
+        playerAttackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (bossCombat) {
+                    bossCombat();
+                }
+                else {
+                    System.out.println("loadMonster");
+                    combat();
+                }
+            }
+        });
+    }
+
+    public void loadMonster() {
+        try {
+            BufferedReader monsterLoader = new BufferedReader(new FileReader("Orc.txt"));
+            monsters.setName(monsterLoader.readLine());
+            monsters.setLevel(monsterLoader.readLine());
+            monsters.setEnemyHealth(Integer.parseInt(monsterLoader.readLine()));
+            monsters.setEnemyAttack(Integer.parseInt(monsterLoader.readLine()));
+            monsters.setExpDrop(Integer.parseInt(monsterLoader.readLine()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadBoss() {
+        try {
+            BufferedReader monsterLoader = new BufferedReader(new FileReader("Level1Boss.txt"));
+            bossMonster.setName(monsterLoader.readLine());
+            bossMonster.setLevel(monsterLoader.readLine());
+            bossMonster.setEnemyHealth(Integer.parseInt(monsterLoader.readLine()));
+            bossMonster.setEnemyAttack(Integer.parseInt(monsterLoader.readLine()));
+            bossMonster.setExpDrop(Integer.parseInt(monsterLoader.readLine()));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
