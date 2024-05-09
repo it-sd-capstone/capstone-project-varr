@@ -2,7 +2,7 @@ package edu.cvtc.varr;
 
 public class Dungeon {
     private String name;
-    private int level;
+    private int level = 1;
     private Room[][] rooms;
 
     public Dungeon(int width, int height) {

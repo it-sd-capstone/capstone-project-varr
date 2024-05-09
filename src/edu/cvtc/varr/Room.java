@@ -7,6 +7,7 @@ public class Room {
     private String description;
     private boolean monsterEncounter;
     private Map<String, Room> exits;
+    private boolean encounterOccurred;
 
     public Room(String description, boolean monsterEncounter) {
         this.description = description;
@@ -33,6 +34,14 @@ public class Room {
 
     public Room getExit(String direction) {
         return exits.get(direction);
+    }
+
+    public boolean hasEncounterOccurred() {
+        return encounterOccurred;
+    }
+
+    public void setEncounterOccurred(boolean encounterOccurred) {
+        this.encounterOccurred = encounterOccurred;
     }
 
 

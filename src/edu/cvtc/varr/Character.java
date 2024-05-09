@@ -4,15 +4,43 @@ public class Character {
 
     private String name;
     private int health;
-    private int mana;
     private int experience;
     private int attack;
-    private int defense;
-    private int gold;
-    private int armor;
     private int level;
+    private int expToLevelUp = 5;
 
-    public Character() {}
+    private int maxHealth;
+
+
+    public Character() {
+
+    }
+
+    public void addExp(int exp){
+        experience += exp;
+        checkForLevelUp();
+        System.out.println("Added " + experience);
+        System.out.println("Current experience: " + getExperience());
+
+    }
+
+
+    public void checkForLevelUp(){
+        while(experience >= expToLevelUp){
+            levelUp();
+            experience -= experience;
+        }
+    }
+
+    public void levelUp(){
+        level++;
+        expToLevelUp = (int)(expToLevelUp * 1.5);
+        health += 10;
+        maxHealth += 10;
+        attack += 5;
+        System.out.println("You leveled up! You are now level " + level);
+
+    }
     public String getName() {
         return name;
     }
@@ -27,14 +55,6 @@ public class Character {
 
     public void setHealth(int health) {
         this.health = health;
-    }
-
-    public int getMana() {
-        return mana;
-    }
-
-    public void setMana(int mana) {
-        this.mana = mana;
     }
 
     public int getExperience() {
@@ -53,29 +73,6 @@ public class Character {
         this.attack = attack;
     }
 
-    public int getDefense() {
-        return defense;
-    }
-
-    public void setDefense(int defense) {
-        this.defense = defense;
-    }
-
-    public int getGold() {
-        return gold;
-    }
-
-    public void setGold(int gold) {
-        this.gold = gold;
-    }
-
-    public int getArmor() {
-        return armor;
-    }
-
-    public void setArmor(int armor) {
-        this.armor = armor;
-    }
 
     public int getLevel() {
         return level;
@@ -84,4 +81,24 @@ public class Character {
     public void setLevel(int level) {
         this.level = level;
     }
+
+    public int getExpToLevelUp() {
+        return expToLevelUp;
+
+    }
+    public void setExpToLevelUp(int expToLevelUp) {
+        this.expToLevelUp = expToLevelUp;
+
+    }
+
+    public int getMaxHealth() {
+        return maxHealth;
+
+    }
+    public void setMaxHealth(int maxHealth) {
+        this.maxHealth = maxHealth;
+
+
+    }
+
 }
