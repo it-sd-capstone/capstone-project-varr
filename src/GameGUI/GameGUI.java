@@ -1,5 +1,6 @@
 package GameGUI;
 
+import javax.management.StringValueExp;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -21,11 +22,15 @@ public class GameGUI extends JFrame {
     private Room currentRoom;
     private JTextArea textArea;
 
-    private MonsterEncounter  monsterEncounter;
     private Monsters monsters = new Monsters();
+
     private Monsters bossMonster = new Monsters();
+    private static Monsters initialOrc;
+    private static Monsters initialBoss;
+
     boolean bossCombat = false;
-    private ArrayList<Items> inventory = new ArrayList<>();
+
+    boolean monsterCombat = false;
     private ArrowButton leftArrow;
     private ArrowButton upArrow;
     private ArrowButton rightArrow;
@@ -40,30 +45,47 @@ public class GameGUI extends JFrame {
     JButton playerAttackButton = new JButton("Attack");
     JLabel gameTextLabel;
     JLabel playerTextLabel;
-
     private static final ArrayList<String> statusEffect = new ArrayList<>();
-
-    Random rng = new Random();
-
     int playerHealth = player.getHealth();
     int monsterHealth;
     int bossMonsterHealth;
 
     private static String status = "";
 
+    private boolean inCombat = false;
+
+    Room startRoom;
+    Heal healPlayer = new Heal();
+    private int maxHeal = 3;
+    private int healCount = 0;
+
+    private LevelUpEnemies levelUpEnemies = new LevelUpEnemies();
+
+    private static String REGULAR_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Orc.txt";
+    private String BOSS_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Level1Boss.txt";
+
+    private static String INITIAL_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Orc.txt";
+    private static String INITIAL_BOSS_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Level1Boss.txt";
+
+    Monsters enemyMonsterFile = Monsters.readMonstersFromFile(REGULAR_ENEMY_FILE);
+    Monsters bossFile = Monsters.readMonstersFromFile(REGULAR_ENEMY_FILE);
+
+    Monsters updatedOrc = levelUpEnemies.reloadEnemyStats(REGULAR_ENEMY_FILE);
+    Monsters updatedBoss = levelUpEnemies.reloadEnemyStats(BOSS_ENEMY_FILE);
+
 
     public GameGUI() {
-
-        /* Moved to main
-        player.setHealth(100);
-        player.setMana(50);
-        player.setAttack(10);
-        player.setArmor(10);
-        player.setDefense(10);
-        player.setGold(0);
-        player.setLevel(1);
-        player.setExperience(0);
-         */
+        resetEnemiesToInitialState();
+        String playerName = JOptionPane.showInputDialog("Enter your name:");
+        while (playerName != null && playerName.length() > 20) {
+            playerName = JOptionPane.showInputDialog("Name is too long! Please enter a name with a maximum of 20 characters:");
+        }
+        if (playerName != null && !playerName.isEmpty()) {
+            player.setName(playerName);
+        } else {
+            player.setName("Default Name");
+        }
+        dungeon = new Dungeon(3, 4);
 
         setTitle("Varr Dungeon");
         setSize(800, 500);
@@ -92,6 +114,49 @@ public class GameGUI extends JFrame {
         addInventoryToPanel(inventoryPanel, inventory);
         leftPanel.add(statsPanel, BorderLayout.NORTH);
         leftPanel.add(inventoryPanel, BorderLayout.CENTER);
+
+        // HEAL
+        JButton healButton = new JButton("Heal");
+        healButton.setPreferredSize(new Dimension(100, 30));
+        healButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                System.out.println("Heal Count: " + healCount);
+                if (player.getHealth() < player.getMaxHealth()) {
+                    if (healCount < maxHeal) {
+                        healPlayer.healPlayer(player);
+                        healCount++;
+                        statsPanel.removeAll();
+                        statsPanel.revalidate();
+                        statsPanel.repaint();
+                        addStatsToPanel(statsPanel);
+
+                    } else {
+                        if (textArea.getText().isEmpty()) {
+                            textArea.setText("You have used all your healing pots.");
+
+                        } else {
+                            textArea.setText("");
+                            textArea.append("You have used all your healing pots.");
+
+                        }
+                        textArea.append("\n");
+                    }
+                } else {
+                    if (textArea.getText().isEmpty()) {
+                        textArea.setText("You are already at full health.");
+
+                    } else {
+                        textArea.setText("");
+                        textArea.append("You are already at full health.");
+
+                    }
+                    textArea.append("\n");
+                }
+
+            }
+        });
 
         // ARROWS
         JPanel arrowPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -128,10 +193,9 @@ public class GameGUI extends JFrame {
         textArea.setAlignmentX(Component.CENTER_ALIGNMENT);
         gameTextPanel.add(textArea);
 
-        gameTextLabel = new JLabel("TEST");
+        gameTextLabel = new JLabel(" ");
         gameTextLabel.setFont(new Font("Serif", Font.BOLD, 24));
         gameTextPanel.add(gameTextLabel);
-
 
         // SAVE/LOAD
         JButton saveButton = new JButton("Save");
@@ -159,25 +223,29 @@ public class GameGUI extends JFrame {
 
         dungeon = new Dungeon(3, 4);
         // create rooms and set up exits
-        Room startRoom = new Room("You find yourself standing at the entrance of the dungeon.\n" +
+         startRoom = new Room("You find yourself standing at the entrance of the dungeon.\n" +
                 "Dim torchlight flickers against the cold stone walls, casting long shadows across the floor. \n" +
                 "The air is thick with a musty scent, and a sense of anticipation hangs in the air as you prepare to embark on your perilous journey.\n\n\n" +
+                 "You are in the bottom middle room.\n" +
                 "Where will you go ?", true);
 
         Room bottomLeft = new Room("The room is small and cramped, with barely enough space to maneuver.\n" +
                 "Cobwebs cling to the corners, and the floor is littered with debris from fallen stones.\n" +
                 "You can hear the distant echo of dripping water, adding to the eerie atmosphere of the dungeon.\n\n\n" +
+                "You are in the bottom left room.\n" +
                 "Where will you go ?", true);
 
         Room bottomRight = new Room("As you enter, a gust of stale air rushes past you, carrying the scent of decay.\n" +
                 "The room is shrouded in darkness, illuminated only by faint beams of moonlight filtering in through narrow cracks in the ceiling.\n" +
                 "You can sense danger lurking in the shadows, and your instincts tell you to proceed with caution.\n\n\n" +
+                "You are in the bottom right room.\n" +
                 "Where will you go ?", true);
 
         Room middleLeft = new Room("This room is larger than the others you've encountered so far, with high ceilings and expansive walls adorned with faded tapestries.\n" +
                 "The floor is smooth and uneven, worn down by centuries of footprints.\n" +
                 "You can hear the faint sound of footsteps echoing in the distance, hinting at the presence of other creatures within the dungeon\n\n\n"+
                 "The door behind you closes, and you realize that there's no going back to the room before\n" +
+                "You are in the middle left room.\n" +
                 "Where will you go ?", true);
 
 
@@ -185,12 +253,14 @@ public class GameGUI extends JFrame {
                 "The air is heavy with a sense of foreboding, and a chill runs down your spine as you gaze into the darkness ahead.\n" +
                 "You can't help but feel a sense of trepidation as you press forward into the unknown.\n\n\n"+
                 "The door behind you closes, and you realize that there's no going back to the room before\n" +
+                "You are in the middle middle room.\n" +
                 "Where will you go ?", true);
 
         Room middleRight = new Room("The room is bathed in a soft, golden light that emanates from a crack in the wall.\n" +
                 "You can see intricate carvings etched into the stone, depicting scenes of ancient battles and forgotten heroes.\n" +
                 "Despite the beauty of the artwork, a sense of unease washes over you, as if the walls themselves are watching your every move..\n\n\n"+
                 "The door behind you closes, and you realize that there's no going back to the room before\n" +
+                "You are in the middle right room.\n" +
                 "Where will you go ?", true);
 
 
@@ -199,6 +269,7 @@ public class GameGUI extends JFrame {
                 " Moss clings to the walls, adding to the sense of tranquility that permeates the space.\n\n\n"+
                 "The door behind you closes, and you realize that there's no going back to the room before. You feel an eerie presence in the air.\n" +
                 "You only hope you can survive whatever is ahead.\n" +
+                "You are in the top left room.\n" +
                 "Where will you go ?", true);
 
 
@@ -207,6 +278,7 @@ public class GameGUI extends JFrame {
                 "You can't help but feel a sense of relief as you bask in the light, if only for a moment.\n\n\n"+
                 "The door behind you closes, and you realize that there's no going back to the room before. You feel an eerie presence in the air.\n" +
                 "You only hope you can survive whatever is ahead.\n" +
+                "You are in the top middle room.\n" +
                 "Where will you go ?", true);
 
         Room topRight = new Room("You stand on the threshold of the final chamber, your heart pounding in your chest as you prepare to face the ultimate challenge.\n" +
@@ -215,10 +287,11 @@ public class GameGUI extends JFrame {
                 "You can feel the raw power emanating from the figure, and you steel yourself for the battle ahead\n\n\n"+
                 "The door behind you closes, and you realize that there's no going back to the room before. You feel an eerie presence in the air.\n" +
                 "You only hope you can survive whatever is ahead.\n" +
+                "You are in the top right room.\n" +
                 "Where will you go ?", true);
 
 
-        Room bossRoom = new Room("You are in the boss room.\n", true);
+        Room bossRoom = new Room("", true);
 
         //Bottom row
         startRoom.addExit("north", middleMiddle);
@@ -324,6 +397,20 @@ public class GameGUI extends JFrame {
         // MONSTER ENCOUNTER
         //monsterEncounter = new MonsterEncounter(dungeon,currentRoom);
 
+        playerAttackButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (bossCombat) {
+                    bossCombat();
+                    System.out.println("boss");
+                }
+                else {
+                    System.out.println("orc");
+                    combat();
+                }
+            }
+        });
+
 
         // I added this to the arrow panel
         // this can be changed and moved, but set up to test function
@@ -334,6 +421,7 @@ public class GameGUI extends JFrame {
         playerAttackButton.setVisible(false);
 
         arrowPanel.add(playerAttackButton);
+        arrowPanel.add(healButton);
         container.add(arrowPanel, BorderLayout.SOUTH);
         container.add(leftPanel, BorderLayout.WEST);
         arrowPanel.add(loadButton);
@@ -346,7 +434,7 @@ public class GameGUI extends JFrame {
     public static void main(String[] args) {
 
         // added monster health for testing
-
+        resetEnemiesToInitialState();
 
         statusEffect.add("bleedHit");
         statusEffect.add("criticalHit");
@@ -355,19 +443,23 @@ public class GameGUI extends JFrame {
 
 
         player.setName("TestName");
-        player.setHealth(100);
-        player.setMana(50);
+        player.setHealth(10000);
+        player.setMaxHealth(100);
         player.setAttack(10);
-        player.setArmor(10);
-        player.setDefense(10);
-        player.setGold(0);
         player.setLevel(1);
         player.setExperience(0);
+        player.setExpToLevelUp(5);
+
+
+
 
         //saveGame("saveFile1");
         //loadData("saveFile1");
+        GameGUI game = new GameGUI();
+        game.resetEnemiesToInitialState();
+        new Dungeon(3,4);
 
-        new GameGUI();
+
 
 
     }
@@ -375,14 +467,17 @@ public class GameGUI extends JFrame {
     private void addStatsToPanel(JPanel statsPanel) {
         statsPanel.add(new JLabel("Name: " + player.getName()));
         statsPanel.add(new JLabel("Health: " + player.getHealth()));
-        statsPanel.add(new JLabel("Mana: " + player.getMana()));
         statsPanel.add(new JLabel("Attack: " + player.getAttack()));
-        statsPanel.add(new JLabel("Armor: " + player.getArmor()));
-        statsPanel.add(new JLabel("Defense: " + player.getDefense()));
-        statsPanel.add(new JLabel("Gold: " + player.getGold()));
         statsPanel.add(new JLabel("Level: " + player.getLevel()));
         statsPanel.add(new JLabel("Experience: " + player.getExperience()));
+        statsPanel.add(new JLabel("Level Up: " + player.getExpToLevelUp()));
+        statsPanel.add(new JLabel("Dungeon Level: " + dungeon.getLevel()));
+        statsPanel.add(new JLabel("Potions: " + (maxHeal - healCount)));
+
+        statsPanel.revalidate();
+        statsPanel.repaint();
     }
+
     private void addInventoryToPanel(JPanel inventoryPanel, Inventory inventory) {
         DefaultListModel<Items> model = new DefaultListModel<>();
         for (Items item : inventory.showInventory()) {
@@ -390,23 +485,6 @@ public class GameGUI extends JFrame {
         }
         JList<Items> inventoryList = new JList<>(model);
         inventoryPanel.add(inventoryList);
-    }
-
-
-
-    private void showStats() {
-        StringBuilder statsMessage = new StringBuilder();
-        statsMessage.append("Name: ").append(player.getName()).append("\n");
-        statsMessage.append("Health: ").append(player.getHealth()).append("\n");
-        statsMessage.append("Mana: ").append(player.getMana()).append("\n");
-        statsMessage.append("Attack: ").append(player.getAttack()).append("\n");
-        statsMessage.append("Armor: ").append(player.getArmor()).append("\n");
-        statsMessage.append("Defense: ").append(player.getDefense()).append("\n");
-        statsMessage.append("Gold: ").append(player.getGold()).append("\n");
-        statsMessage.append("Level: ").append(player.getLevel()).append("\n");
-        statsMessage.append("Experience: ").append(player.getExperience()).append("\n");
-
-        JOptionPane.showMessageDialog(null, statsMessage.toString(), "Player Stats", JOptionPane.INFORMATION_MESSAGE);
     }
 
     // This is the outline for the saveGame method
@@ -432,15 +510,7 @@ public class GameGUI extends JFrame {
             saveToFile.newLine();
             saveToFile.append(String.valueOf(player.getHealth()));
             saveToFile.newLine();
-            saveToFile.append(String.valueOf(player.getMana()));
-            saveToFile.newLine();
             saveToFile.append(String.valueOf(player.getAttack()));
-            saveToFile.newLine();
-            saveToFile.append(String.valueOf(player.getArmor()));
-            saveToFile.newLine();
-            saveToFile.append(String.valueOf(player.getDefense()));
-            saveToFile.newLine();
-            saveToFile.append(String.valueOf(player.getGold()));
             saveToFile.newLine();
             saveToFile.append(String.valueOf(player.getLevel()));
             saveToFile.newLine();
@@ -469,11 +539,7 @@ public class GameGUI extends JFrame {
             // Can load data from readLoadFile to player/game data variables
             player.setName(readLoadFile.readLine());
             player.setHealth(Integer.parseInt(readLoadFile.readLine()));
-            player.setMana(Integer.parseInt(readLoadFile.readLine()));
             player.setAttack(Integer.parseInt(readLoadFile.readLine()));
-            player.setArmor(Integer.parseInt(readLoadFile.readLine()));
-            player.setDefense(Integer.parseInt(readLoadFile.readLine()));
-            player.setGold(Integer.parseInt(readLoadFile.readLine()));
             player.setLevel(Integer.parseInt(readLoadFile.readLine()));
             player.setExperience(Integer.parseInt(readLoadFile.readLine()));
 
@@ -492,318 +558,379 @@ public class GameGUI extends JFrame {
     }
 
     public void combat() {
+        if(inCombat) {
+            textArea.setVisible(false);
+            monsterHealth = monsters.getEnemyHealth();
 
-        monsterHealth = monsters.getEnemyHealth();
 
-        // if bleed is inflicted, player will take damage on their turn
-        // player will only take 3 turns of bleed damage
-        if (bleed) {
-            bleedCount += 1;
 
-            // message to user
-            playerTextLabel.setText("You take bleed damage. You hit the " + monsters.getName() + ".");
-            playerTextLabel.revalidate();
-            playerTextLabel.repaint();
+            // if bleed is inflicted, player will take damage on their turn
+            // player will only take 3 turns of bleed damage
+            if (bleed) {
+                bleedCount += 1;
 
-            // damage to monster
-            monsters.setEnemyHealth(monsterHealth -= player.getAttack());
+                // message to user
+                playerTextLabel.setText("You take bleed damage. You hit the " + monsters.getName() + ".");
+                playerTextLabel.revalidate();
+                playerTextLabel.repaint();
 
-            // player bleed damage
-            player.setHealth(playerHealth -= playerBleedDamageValue);
+                // damage to monster
+                monsters.setEnemyHealth(monsterHealth -= player.getAttack());
 
-            // only 3 turns of bleed damage
-            if (bleedCount == 3) {
-                bleedCount = 0;
-                bleed = false;
+                // player bleed damage
+                player.setHealth(playerHealth -= playerBleedDamageValue);
+
+                // only 3 turns of bleed damage
+                if (bleedCount == 3) {
+                    bleedCount = 0;
+                    bleed = false;
+                }
+
+                // reset GUI to update player attributes
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
+
+            } else {
+                playerTextLabel.setText("You hit the " + monsters.getName() + ".");
+                playerTextLabel.revalidate();
+                playerTextLabel.repaint();
+
+                monsters.setEnemyHealth(monsterHealth -= player.getAttack());
+            }
+            if (monsters.getEnemyHealth() <= 0) {
+
+                Monsters updatedOrc = levelUpEnemies.reloadEnemyStats(REGULAR_ENEMY_FILE);
+
+                // EXP
+                int expDrop = updatedOrc.getExpDrop();
+                player.addExp(expDrop);
+                // Check if the player has leveled up
+                if (player.getExperience() > player.getExpToLevelUp()) {
+                    player.setExperience(player.getExperience() - player.getExpToLevelUp());
+                    player.levelUp();
+                }
+
+                maxHeal = 3;
+                healCount = 0;
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
+
+                // message to user
+                gameTextLabel.setText("You killed " + monsters.getName());
+                gameTextLabel.revalidate();
+                gameTextLabel.repaint();
+                textArea.setVisible(true);
+                playerTextLabel.setText("");
+                playerTextLabel.revalidate();
+                playerTextLabel.repaint();
+                playerAttackButton.setVisible(false);
+                rightArrow.setVisible(true);
+                upArrow.setVisible(true);
+                leftArrow.setVisible(true);
+                inCombat = false;
+
+                // reset GUI to update player attributes
+
+
+                return;
             }
 
-            // reset GUI to update player attributes
-            statsPanel.removeAll();
-            statsPanel.revalidate();
-            statsPanel.repaint();
-            addStatsToPanel(statsPanel);
+            // random number to decide what type of hit monster will do
+            Random rng = new Random();
+            int selectedStatusEffect = rng.nextInt((4));
 
-        } else {
-            playerTextLabel.setText("You hit the " + monsters.getName() + ".");
-            playerTextLabel.revalidate();
-            playerTextLabel.repaint();
+            // using random number to select a status type
+            // status types are bleedHit, criticalHit, missHit, and normalHit
+            status = statusEffect.get(selectedStatusEffect);
 
-            monsters.setEnemyHealth(monsterHealth -= player.getAttack());
-        }
-        if (monsters.getEnemyHealth() <= 0) {
+            if (status.equals("bleedHit")) {
+                // message to user
+                gameTextLabel.setText(monsters.getName() + " inflicts a bleeding hit.");
+                gameTextLabel.revalidate();
+                gameTextLabel.repaint();
 
-            // message to user
-            playerTextLabel.setText("");
-            playerTextLabel.revalidate();
-            playerTextLabel.repaint();
-            gameTextLabel.setText("You killed " + monsters.getName());
-            gameTextLabel.revalidate();
-            gameTextLabel.repaint();
-            playerAttackButton.setVisible(false);
-            rightArrow.setVisible(true);
-            upArrow.setVisible(true);
-            leftArrow.setVisible(true);
-            return;
-        }
+                // player takes hit and will take bleed damage on their turn
+                player.setHealth(playerHealth -= monsters.getEnemyAttack());
 
-        // random number to decide what type of hit monster will do
-        Random rng = new Random();
-        int selectedStatusEffect = rng.nextInt((4));
+                // reset GUI to update player attributes
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
 
-        // using random number to select a status type
-        // status types are bleedHit, criticalHit, missHit, and normalHit
-        status = statusEffect.get(selectedStatusEffect);
+                // bleed status
+                bleed = true;
 
-        if (status.equals("bleedHit")) {
-            // message to user
-            gameTextLabel.setText(monsters.getName() + " inflicts a bleeding hit.");
-            gameTextLabel.revalidate();
-            gameTextLabel.repaint();
+            } else if (status.equals("criticalHit")) {
+                // message to user
+                gameTextLabel.setText( monsters.getName() + " inflicts a critical hit.");
+                gameTextLabel.revalidate();
+                gameTextLabel.repaint();
+                player.setHealth(playerHealth -= (int) (monsters.getEnemyAttack() * playerCriticalDamageValue));
 
-            // player takes hit and will take bleed damage on their turn
-            player.setHealth(playerHealth -= monsters.getEnemyAttack());
+                // reset GUI to update player attributes
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
 
-            // reset GUI to update player attributes
-            statsPanel.removeAll();
-            statsPanel.revalidate();
-            statsPanel.repaint();
-            addStatsToPanel(statsPanel);
+            } else if (status.equals("missHit")) {
+                // message to user
+                gameTextLabel.setText(monsters.getName() + "'s hit missed.");
+                gameTextLabel.revalidate();
+                gameTextLabel.repaint();
+            } else {
+                // message to user
+                gameTextLabel.setText(monsters.getName() + " hit you.");
+                gameTextLabel.revalidate();
 
-            // bleed status
-            bleed = true;
+                player.setHealth(playerHealth -= monsters.getEnemyAttack());
 
-        } else if (status.equals("criticalHit")) {
-            // message to user
-            gameTextLabel.setText( monsters.getName() + " inflicts a critical hit.");
-            gameTextLabel.revalidate();
-            gameTextLabel.repaint();
-            player.setHealth(playerHealth -= (int) (monsters.getEnemyAttack() * playerCriticalDamageValue));
+                // reset GUI to update player attributes
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
+            }
 
-            // reset GUI to update player attributes
-            statsPanel.removeAll();
-            statsPanel.revalidate();
-            statsPanel.repaint();
-            addStatsToPanel(statsPanel);
+            if (player.getHealth() <= 0) {
 
-        } else if (status.equals("missHit")) {
-            // message to user
-            gameTextLabel.setText(monsters.getName() + "'s hit missed.");
-            gameTextLabel.revalidate();
-            gameTextLabel.repaint();
-        } else {
-            // message to user
-            gameTextLabel.setText("     " + monsters.getName() + " hit you.");
-            gameTextLabel.revalidate();
+                // message to user
+                player.setHealth(0);
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
+                playerTextLabel.setText(" ");
+                playerTextLabel.revalidate();
+                playerTextLabel.repaint();
+                gameTextLabel.setText(monsters.getName() + " killed you.");
+                gameTextLabel.revalidate();
+                gameTextLabel.repaint();
+                playerAttackButton.setVisible(false);
+                rightArrow.setVisible(true);
+                upArrow.setVisible(true);
+                leftArrow.setVisible(true);
 
-            player.setHealth(playerHealth -= monsters.getEnemyAttack());
 
-            // reset GUI to update player attributes
-            statsPanel.removeAll();
-            statsPanel.revalidate();
-            statsPanel.repaint();
-            addStatsToPanel(statsPanel);
+                return;
+            }
+
         }
 
-        if (player.getHealth() <= 0) {
 
-            // message to user
-            player.setHealth(0);
-            statsPanel.removeAll();
-            statsPanel.revalidate();
-            statsPanel.repaint();
-            addStatsToPanel(statsPanel);
-            playerTextLabel.setText(" ");
-            playerTextLabel.revalidate();
-            playerTextLabel.repaint();
-            gameTextLabel.setText(monsters.getName() + " killed you.");
-            gameTextLabel.revalidate();
-            gameTextLabel.repaint();
-            playerAttackButton.setVisible(false);
-            rightArrow.setVisible(true);
-            upArrow.setVisible(true);
-            leftArrow.setVisible(true);
-            return;
-        }
     }
 
     public void bossCombat() {
+        if(inCombat){
+            textArea.setVisible(false);
+            bossMonsterHealth = bossMonster.getEnemyHealth();
 
-        bossMonsterHealth = bossMonster.getEnemyHealth();
+            // if bleed is inflicted, player will take damage on their turn
+            // player will only take 3 turns of bleed damage
+            if (bleed) {
+                bleedCount += 1;
 
-        // if bleed is inflicted, player will take damage on their turn
-        // player will only take 3 turns of bleed damage
-        if (bleed) {
-            bleedCount += 1;
+                // message to user
+                playerTextLabel.setText("You take bleed damage. You hit the " + bossMonster.getName() + ".\n");
+                playerTextLabel.revalidate();
+                playerTextLabel.repaint();
 
-            // message to user
-            playerTextLabel.setText("You take bleed damage. You hit the " + bossMonster.getName() + ".");
-            playerTextLabel.revalidate();
-            playerTextLabel.repaint();
+                // damage to monster
+                bossMonster.setEnemyHealth(bossMonsterHealth -= player.getAttack());
 
-            // damage to monster
-            bossMonster.setEnemyHealth(bossMonsterHealth -= player.getAttack());
+                // player bleed damage
+                player.setHealth(playerHealth -= playerBleedDamageValue);
 
-            // player bleed damage
-            player.setHealth(playerHealth -= playerBleedDamageValue);
+                // only 3 turns of bleed damage
+                if (bleedCount == 3) {
+                    bleedCount = 0;
+                    bleed = false;
+                }
 
-            // only 3 turns of bleed damage
-            if (bleedCount == 3) {
-                bleedCount = 0;
-                bleed = false;
+                // reset GUI to update player attributes
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
+
+            } else {
+                playerTextLabel.setText("You hit the " + bossMonster.getName() + ".\n");
+                playerTextLabel.revalidate();
+                playerTextLabel.repaint();
+
+                bossMonster.setEnemyHealth(bossMonsterHealth -= player.getAttack());
+            }
+            if (bossMonster.getEnemyHealth() <= 0) {
+
+                int expDrop = updatedBoss.getExpDrop(); // Use updated boss stats
+                player.addExp(expDrop);
+                System.out.println("EXP from boss: " + expDrop);
+                player.addExp(expDrop);
+                // Check if the player has leveled up
+                while (player.getExperience() >= player.getExpToLevelUp()) {
+                    player.setExperience(0);
+                    player.levelUp();
+                }
+                maxHeal = 3;
+                healCount = 0;
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
+
+                // message to user
+                playerTextLabel.setText("");
+                playerTextLabel.revalidate();
+                playerTextLabel.repaint();
+                gameTextLabel.setText("You killed " + bossMonster.getName());
+                gameTextLabel.revalidate();
+                gameTextLabel.repaint();
+                playerAttackButton.setVisible(false);
+                rightArrow.setVisible(true);
+                upArrow.setVisible(true);
+                leftArrow.setVisible(true);
+                textArea.setVisible(true);
+                inCombat = false;
+                bossCombat = false;
+                goToNextLevel();
+                return;
             }
 
-            // reset GUI to update player attributes
-            statsPanel.removeAll();
-            statsPanel.revalidate();
-            statsPanel.repaint();
-            addStatsToPanel(statsPanel);
 
-        } else {
-            playerTextLabel.setText("You hit the " + bossMonster.getName() + ".");
-            playerTextLabel.revalidate();
-            playerTextLabel.repaint();
+            // random number to decide what type of hit monster will do
+            Random rng = new Random();
+            int selectedStatusEffect = rng.nextInt((4));
 
-            bossMonster.setEnemyHealth(bossMonsterHealth -= player.getAttack());
+            // using random number to select a status type
+            // status types are bleedHit, criticalHit, missHit, and normalHit
+            status = statusEffect.get(selectedStatusEffect);
+
+            if (status.equals("bleedHit")) {
+                // message to user
+                gameTextLabel.setText(bossMonster.getName() + " inflicts a bleeding hit.\n");
+                gameTextLabel.revalidate();
+                gameTextLabel.repaint();
+
+                // player takes hit and will take bleed damage on their turn
+                player.setHealth(playerHealth -= bossMonster.getEnemyAttack());
+
+                // reset GUI to update player attributes
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
+
+                // bleed status
+                bleed = true;
+
+            } else if (status.equals("criticalHit")) {
+                // message to user
+                gameTextLabel.setText( bossMonster.getName() + " inflicts a critical hit.\n");
+                gameTextLabel.revalidate();
+                gameTextLabel.repaint();
+                player.setHealth(playerHealth -= (int) (bossMonster.getEnemyAttack() * playerCriticalDamageValue));
+
+                // reset GUI to update player attributes
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
+
+            } else if (status.equals("missHit")) {
+                // message to user
+                gameTextLabel.setText(bossMonster.getName() + "'s hit missed.\n");
+                gameTextLabel.revalidate();
+                gameTextLabel.repaint();
+            } else {
+                // message to user
+                gameTextLabel.setText("     " + bossMonster.getName() + " hit you.\n");
+                gameTextLabel.revalidate();
+
+                player.setHealth(playerHealth -= bossMonster.getEnemyAttack());
+
+                // reset GUI to update player attributes
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
+            }
+
+            if (player.getHealth() <= 0) {
+
+                // message to user
+                player.setHealth(0);
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
+                playerTextLabel.setText(" ");
+                playerTextLabel.revalidate();
+                playerTextLabel.repaint();
+                gameTextLabel.setText(bossMonster.getName() + " killed you.\n");
+                gameTextLabel.revalidate();
+                gameTextLabel.repaint();
+                playerAttackButton.setVisible(false);
+                rightArrow.setVisible(true);
+                upArrow.setVisible(true);
+                leftArrow.setVisible(true);
+                return;
+            }
         }
-        if (bossMonster.getEnemyHealth() <= 0) {
+    }
 
-            // message to user
-            playerTextLabel.setText("");
-            playerTextLabel.revalidate();
-            playerTextLabel.repaint();
-            gameTextLabel.setText("You killed " + bossMonster.getName());
-            gameTextLabel.revalidate();
-            gameTextLabel.repaint();
-            playerAttackButton.setVisible(false);
-            rightArrow.setVisible(true);
-            upArrow.setVisible(true);
-            leftArrow.setVisible(true);
-            return;
+    public void goToNextLevel() {
+        int level = dungeon.getLevel();
+        level++;
+        levelUpEnemies.increaseEnemyLevel();
+        levelUpEnemies.reloadEnemyStats(String.valueOf(REGULAR_ENEMY_FILE)); // Update monsters with new stats
+        levelUpEnemies.reloadEnemyStats(String.valueOf(BOSS_ENEMY_FILE)); // Update monsters with new stats
+        if (dungeon != null) {
+            dungeon.setLevel(level);
         }
-
-        // random number to decide what type of hit monster will do
-        Random rng = new Random();
-        int selectedStatusEffect = rng.nextInt((4));
-
-        // using random number to select a status type
-        // status types are bleedHit, criticalHit, missHit, and normalHit
-        status = statusEffect.get(selectedStatusEffect);
-
-        if (status.equals("bleedHit")) {
-            // message to user
-            gameTextLabel.setText(bossMonster.getName() + " inflicts a bleeding hit.");
-            gameTextLabel.revalidate();
-            gameTextLabel.repaint();
-
-            // player takes hit and will take bleed damage on their turn
-            player.setHealth(playerHealth -= bossMonster.getEnemyAttack());
-
-            // reset GUI to update player attributes
-            statsPanel.removeAll();
-            statsPanel.revalidate();
-            statsPanel.repaint();
-            addStatsToPanel(statsPanel);
-
-            // bleed status
-            bleed = true;
-
-        } else if (status.equals("criticalHit")) {
-            // message to user
-            gameTextLabel.setText( bossMonster.getName() + " inflicts a critical hit.");
-            gameTextLabel.revalidate();
-            gameTextLabel.repaint();
-            player.setHealth(playerHealth -= (int) (bossMonster.getEnemyAttack() * playerCriticalDamageValue));
-
-            // reset GUI to update player attributes
-            statsPanel.removeAll();
-            statsPanel.revalidate();
-            statsPanel.repaint();
-            addStatsToPanel(statsPanel);
-
-        } else if (status.equals("missHit")) {
-            // message to user
-            gameTextLabel.setText(bossMonster.getName() + "'s hit missed.");
-            gameTextLabel.revalidate();
-            gameTextLabel.repaint();
-        } else {
-            // message to user
-            gameTextLabel.setText("     " + bossMonster.getName() + " hit you.");
-            gameTextLabel.revalidate();
-
-            player.setHealth(playerHealth -= bossMonster.getEnemyAttack());
-
-            // reset GUI to update player attributes
-            statsPanel.removeAll();
-            statsPanel.revalidate();
-            statsPanel.repaint();
-            addStatsToPanel(statsPanel);
-        }
-
-        if (player.getHealth() <= 0) {
-
-            // message to user
-            player.setHealth(0);
-            statsPanel.removeAll();
-            statsPanel.revalidate();
-            statsPanel.repaint();
-            addStatsToPanel(statsPanel);
-            playerTextLabel.setText(" ");
-            playerTextLabel.revalidate();
-            playerTextLabel.repaint();
-            gameTextLabel.setText(bossMonster.getName() + " killed you.");
-            gameTextLabel.revalidate();
-            gameTextLabel.repaint();
-            playerAttackButton.setVisible(false);
-            rightArrow.setVisible(true);
-            upArrow.setVisible(true);
-            leftArrow.setVisible(true);
-            return;
-        }
+        currentRoom = startRoom;
+        textArea.setText(currentRoom.getDescription());
     }
 
 
     public void checkForEncounter(Dungeon dungeon, Room currentRoom) {
-
         this.dungeon = dungeon;
         this.currentRoom = currentRoom;
-       int encounterRng = new Random().nextInt(2);
-       if (currentRoom == dungeon.getRoom(0,1)) {
-           loadBoss();
-           bossCombat = true;
-           gameTextLabel.setText("<html>You have reach the boss of this level.<br> Prepare to battle " + bossMonster.getName() + ".</html>");
-           playerAttackButton.setVisible(true);
-           rightArrow.setVisible(false);
-           leftArrow.setVisible(false);
-           upArrow.setVisible(false);
+        int encounterRng = new Random().nextInt(2);
+        if (currentRoom == dungeon.getRoom(0,1)) {
+            inCombat = true;
+            loadBoss();
+            bossCombat = true;
+            gameTextLabel.setText("<html>You have reach the boss of this level.<br> Prepare to battle " + bossMonster.getName() + ".</html>");
+            playerAttackButton.setVisible(true);
+            rightArrow.setVisible(false);
+            leftArrow.setVisible(false);
+            upArrow.setVisible(false);
 
-       } else {
-           if (encounterRng == 0) {
-               loadMonster();
-               gameTextLabel.setText("You ran into a stinky " + monsters.getName() + ".");
-               playerAttackButton.setVisible(true);
-               rightArrow.setVisible(false);
-               leftArrow.setVisible(false);
-               upArrow.setVisible(false);
+        } else {
+            if (encounterRng == 0) {
+                inCombat = true;
+                loadMonster();
+                monsterCombat = true;
+                gameTextLabel.setText("You ran into a stinky " + monsters.getName() + ".\n");
+                playerAttackButton.setVisible(true);
+                rightArrow.setVisible(false);
+                leftArrow.setVisible(false);
+                upArrow.setVisible(false);
+                textArea.setVisible(false);
 
-           }
-       }
-        playerAttackButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (bossCombat) {
-                    bossCombat();
-                }
-                else {
-                    System.out.println("loadMonster");
-                    combat();
-                }
             }
-        });
+        }
+
     }
 
     public void loadMonster() {
         try {
-            BufferedReader monsterLoader = new BufferedReader(new FileReader("Orc.txt"));
+            BufferedReader monsterLoader = new BufferedReader(new FileReader(REGULAR_ENEMY_FILE));
             monsters.setName(monsterLoader.readLine());
             monsters.setLevel(monsterLoader.readLine());
             monsters.setEnemyHealth(Integer.parseInt(monsterLoader.readLine()));
@@ -811,12 +938,13 @@ public class GameGUI extends JFrame {
             monsters.setExpDrop(Integer.parseInt(monsterLoader.readLine()));
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Error loading monster");
         }
     }
 
     public void loadBoss() {
         try {
-            BufferedReader monsterLoader = new BufferedReader(new FileReader("Level1Boss.txt"));
+            BufferedReader monsterLoader = new BufferedReader(new FileReader(BOSS_ENEMY_FILE));
             bossMonster.setName(monsterLoader.readLine());
             bossMonster.setLevel(monsterLoader.readLine());
             bossMonster.setEnemyHealth(Integer.parseInt(monsterLoader.readLine()));
@@ -826,5 +954,50 @@ public class GameGUI extends JFrame {
             e.printStackTrace();
         }
     }
+
+    public void close() {
+        // Write the original regular enemy stats back to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(REGULAR_ENEMY_FILE))) {
+            writer.write("Orc\n");
+            writer.write("1\n");
+            writer.write("50\n");
+            writer.write("10\n");
+            writer.write("2\n");
+        } catch (IOException e) {
+            System.out.println("Error writing to regular enemy file: " + e.getMessage());
+        }
+
+        // Write the original boss stats back to the file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(BOSS_ENEMY_FILE))) {
+            writer.write("King Orc\n");
+            writer.write("5\n");
+            writer.write("250\n");
+            writer.write("20\n");
+            writer.write("50\n");
+        } catch (IOException e) {
+            System.out.println("Error writing to boss file: " + e.getMessage());
+        }
+    }
+
+    private static void resetEnemiesToInitialState() {
+        // Initialize initial stats for Orc
+        initialOrc = Monsters.readMonstersFromFile(INITIAL_ENEMY_FILE);
+        initialOrc.setName("Orc");
+        initialOrc.setLevel("1"); // Assuming level 1
+        initialOrc.setEnemyHealth(10); // Initial health 10
+        initialOrc.setEnemyAttack(10); // Initial attack 10
+        initialOrc.setExpDrop(2); // Initial exp drop 2
+        System.out.println("level" + initialOrc.getLevel());
+        System.out.println("exp" + initialOrc.getExpDrop());
+
+        // Initialize initial stats for Boss
+        initialBoss = Monsters.readMonstersFromFile(INITIAL_BOSS_FILE);
+        initialBoss.setName("Level1Boss");
+        initialBoss.setLevel("1"); // Assuming level 1
+        initialBoss.setEnemyHealth(50); // Initial health 100
+        initialBoss.setEnemyAttack(10); // Initial attack 50
+        initialBoss.setExpDrop(5); // Initial exp drop 50
+    }
+
 
 }
