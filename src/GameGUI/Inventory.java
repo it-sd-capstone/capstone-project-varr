@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class Inventory extends JButton {
 
-    private static final String ITEMS_FILE = "capstone-project-varr\\items.txt"; // Path to your items file
+    private static final String ITEMS_FILE = "capstone-project-varr\\sword.txt";
 
     ArrayList<Items> inventory = new ArrayList<>();
 

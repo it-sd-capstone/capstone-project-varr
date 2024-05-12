@@ -545,9 +545,6 @@ public class GameGUI extends JFrame {
         game.resetEnemiesToInitialState();
         new Dungeon(3,3);
 
-
-
-
     }
 
     private void addStatsToPanel(JPanel statsPanel) {
@@ -566,7 +563,6 @@ public class GameGUI extends JFrame {
         statsPanel.repaint();
     }
 
-    // Modify your addInventoryToPanel method to use a JList with a custom renderer
     private void addInventoryToPanel(JPanel inventoryPanel, Inventory inventory) {
         DefaultListModel<Items> model = new DefaultListModel<>();
         for (Items item : inventory.getInventory()) {
@@ -584,8 +580,6 @@ public class GameGUI extends JFrame {
                 return label;
             }
         });
-
-        // Add selection listener to toggle player's attack
         inventoryList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 ListSelectionModel selectionModel = inventoryList.getSelectionModel();
