@@ -530,8 +530,8 @@ public class GameGUI extends JFrame {
 
 
         player.setName("TestName");
-        player.setHealth(10);
-        player.setMaxHealth(10);
+        player.setHealth(20);
+        player.setMaxHealth(20);
         player.setAttack(10);
         player.setLevel(1);
         player.setExperience(0);
