@@ -4,7 +4,7 @@ public class Items {
 
     private String name;
     private String rarity;
-    private String type;
+    private int damage;
 
     public Items() {
     }
@@ -24,14 +24,19 @@ public class Items {
     public void setRarity(String rarity) {
         this.rarity = rarity;
     }
-
-    public String getType() {
-        return type;
+    public int getDamage() {
+        return damage;
+    }
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+    public Items(String name, String rarity, int damage) {
+        this.name = name;
+        this.rarity = rarity;
+        this.damage = damage;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+
     @Override
     public String toString() {
         return getName() + " (" + getRarity() + ")";

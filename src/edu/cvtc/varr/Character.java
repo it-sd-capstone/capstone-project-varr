@@ -9,6 +9,7 @@ public class Character {
     private int level;
     private int expToLevelUp = 5;
     private int maxHealth;
+    private Items equippedItem;
 
 
     public Character() {
@@ -97,6 +98,13 @@ public class Character {
     public void setMaxHealth(int maxHealth) {
         this.maxHealth = maxHealth;
 
+
+    }
+    public Items getEquippedItem() {
+        return equippedItem;
+    }
+    public void setEquippedItem(Items equippedItem) {
+        this.equippedItem = equippedItem;
 
     }
 
