@@ -69,14 +69,15 @@ public class GameGUI extends JFrame {
 
     private LevelUpEnemies levelUpEnemies = new LevelUpEnemies();
 
-
-
     private static String REGULAR_ENEMY_FILE = "capstone-project-varr\\Orc.txt";
 
     private String BOSS_ENEMY_FILE = "capstone-project-varr\\Level1Boss.txt";
 
     private static String INITIAL_ENEMY_FILE = "C:capstone-project-varr\\Orc.txt";
     private static String INITIAL_BOSS_FILE = "capstone-project-varr\\Level1Boss.txt";
+
+    private static String WEAPON_FILE = "capstone-project-varr\\sword.txt";
+
 
 
 
@@ -88,7 +89,8 @@ public class GameGUI extends JFrame {
 
 
     public GameGUI() {
-
+        Inventory inventory = new Inventory();
+        inventory.addItemFromFile(WEAPON_FILE);
         resetEnemiesToInitialState();
         String playerName = JOptionPane.showInputDialog("Enter your name:");
         while (playerName != null && playerName.length() > 20) {
@@ -131,9 +133,8 @@ public class GameGUI extends JFrame {
         // INVENTORY
         JPanel inventoryPanel = new JPanel(new GridLayout(1, 1));
         inventoryPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        Inventory inventory = new Inventory();
-
         addInventoryToPanel(inventoryPanel, inventory);
+
         leftPanel.add(statsPanel, BorderLayout.NORTH);
         leftPanel.add(inventoryPanel, BorderLayout.CENTER);
 
@@ -565,12 +566,60 @@ public class GameGUI extends JFrame {
         statsPanel.repaint();
     }
 
+    // Modify your addInventoryToPanel method to use a JList with a custom renderer
     private void addInventoryToPanel(JPanel inventoryPanel, Inventory inventory) {
         DefaultListModel<Items> model = new DefaultListModel<>();
-        for (Items item : inventory.showInventory()) {
+        for (Items item : inventory.getInventory()) {
             model.addElement(item);
         }
         JList<Items> inventoryList = new JList<>(model);
+
+        // Customize the cell renderer
+        inventoryList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                Items item = (Items) value;
+                label.setText(item.getName() + " (" + item.getRarity() + "), Damage: " + item.getDamage());
+                return label;
+            }
+        });
+
+        // Add selection listener to toggle player's attack
+        inventoryList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                ListSelectionModel selectionModel = inventoryList.getSelectionModel();
+                int selectedIndex = selectionModel.getMinSelectionIndex();
+                if (selectedIndex >= 0) {
+                    Items selectedItem = inventoryList.getModel().getElementAt(selectedIndex);
+                    if (selectionModel.isSelectedIndex(selectedIndex)) {
+                        if (player.getEquippedItem() == selectedItem) {
+                            player.setAttack(player.getAttack() - selectedItem.getDamage());
+                            player.setEquippedItem(null);
+                            selectionModel.removeSelectionInterval(selectedIndex, selectedIndex); // Deselect the item
+                        } else {
+                            Items equippedItem = player.getEquippedItem();
+                            if (equippedItem != null) {
+                                player.setAttack(player.getAttack() - equippedItem.getDamage());
+                            }
+                            player.setAttack(player.getAttack() + selectedItem.getDamage());
+                            player.setEquippedItem(selectedItem);
+                            selectionModel.removeSelectionInterval(selectedIndex, selectedIndex); // Deselect the item
+                        }
+                        statsPanel.removeAll();
+                        statsPanel.revalidate();
+                        statsPanel.repaint();
+                        addStatsToPanel(statsPanel);
+                    } else {
+                        player.setAttack(player.getAttack() - player.getEquippedItem().getDamage());
+                        player.setEquippedItem(selectedItem);
+                        player.setAttack(player.getAttack() + selectedItem.getDamage());
+                        selectionModel.addSelectionInterval(selectedIndex, selectedIndex); // Select the item
+                    }
+                }
+            }
+        });
+
         inventoryPanel.add(inventoryList);
     }
 
@@ -1238,6 +1287,21 @@ public class GameGUI extends JFrame {
         leftArrow.setVisible(true);
         System.out.println("Restarting game");
 
+    }
+    public static int getWeaponDamage(String weaponFile) {
+        int damage = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(WEAPON_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length > 1) {
+                    damage = Integer.parseInt(parts[1].trim());
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading weapon file: " + e.getMessage());
+        }
+        return damage;
     }
 
 
