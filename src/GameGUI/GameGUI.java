@@ -8,6 +8,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.util.*;
 
@@ -58,14 +60,19 @@ public class GameGUI extends JFrame {
     Heal healPlayer = new Heal();
     private int maxHeal = 3;
     private int healCount = 0;
+    private static final int MAX_LIVES = 3;
+    private int remainingLives = MAX_LIVES;
+    private int deaths = 0;
 
     private LevelUpEnemies levelUpEnemies = new LevelUpEnemies();
 
-    private static String REGULAR_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Orc.txt";
-    private String BOSS_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Level1Boss.txt";
 
-    private static String INITIAL_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Orc.txt";
-    private static String INITIAL_BOSS_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Level1Boss.txt";
+    private static String REGULAR_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.5\\capstone-project-varr\\Orc.txt";
+
+    private String BOSS_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.5\\capstone-project-varr\\Level1Boss.txt";
+
+    private static String INITIAL_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.5\\capstone-project-varr\\Orc.txt";
+    private static String INITIAL_BOSS_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.5\\capstone-project-varr\\Level1Boss.txt";
 
     Monsters enemyMonsterFile = Monsters.readMonstersFromFile(REGULAR_ENEMY_FILE);
     Monsters bossFile = Monsters.readMonstersFromFile(REGULAR_ENEMY_FILE);
@@ -75,6 +82,7 @@ public class GameGUI extends JFrame {
 
 
     public GameGUI() {
+
         resetEnemiesToInitialState();
         String playerName = JOptionPane.showInputDialog("Enter your name:");
         while (playerName != null && playerName.length() > 20) {
@@ -91,7 +99,15 @@ public class GameGUI extends JFrame {
         setSize(800, 500);
         setLocationRelativeTo(null);
         setResizable(false);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Prevents default close operation
+
+        // Add window listener to handle closing event
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                close(); // Call close method when window is closing
+            }
+        });
 
         Container container = getContentPane();
         container.setLayout(new BorderLayout());
@@ -102,7 +118,7 @@ public class GameGUI extends JFrame {
 
 
         // STATS
-        statsPanel = new JPanel(new GridLayout(9, 1));
+        statsPanel = new JPanel(new GridLayout(10, 1));
         statsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         addStatsToPanel(statsPanel);
 
@@ -443,8 +459,8 @@ public class GameGUI extends JFrame {
 
 
         player.setName("TestName");
-        player.setHealth(10000);
-        player.setMaxHealth(100);
+        player.setHealth(10);
+        player.setMaxHealth(10);
         player.setAttack(10);
         player.setLevel(1);
         player.setExperience(0);
@@ -473,6 +489,8 @@ public class GameGUI extends JFrame {
         statsPanel.add(new JLabel("Level Up: " + player.getExpToLevelUp()));
         statsPanel.add(new JLabel("Dungeon Level: " + dungeon.getLevel()));
         statsPanel.add(new JLabel("Potions: " + (maxHeal - healCount)));
+        statsPanel.add(new JLabel("Lives: " + (remainingLives)));
+        statsPanel.add(new JLabel("Deaths: " + (deaths)));
 
         statsPanel.revalidate();
         statsPanel.repaint();
@@ -558,12 +576,9 @@ public class GameGUI extends JFrame {
     }
 
     public void combat() {
-        if(inCombat) {
+        if (inCombat) {
             textArea.setVisible(false);
             monsterHealth = monsters.getEnemyHealth();
-
-
-
             // if bleed is inflicted, player will take damage on their turn
             // player will only take 3 turns of bleed damage
             if (bleed) {
@@ -578,7 +593,7 @@ public class GameGUI extends JFrame {
                 monsters.setEnemyHealth(monsterHealth -= player.getAttack());
 
                 // player bleed damage
-                player.setHealth(playerHealth -= playerBleedDamageValue);
+                player.setHealth(player.getHealth() - playerBleedDamageValue);
 
                 // only 3 turns of bleed damage
                 if (bleedCount == 3) {
@@ -654,7 +669,8 @@ public class GameGUI extends JFrame {
                 gameTextLabel.repaint();
 
                 // player takes hit and will take bleed damage on their turn
-                player.setHealth(playerHealth -= monsters.getEnemyAttack());
+                player.setHealth(player.getHealth() - monsters.getEnemyAttack());
+
 
                 // reset GUI to update player attributes
                 statsPanel.removeAll();
@@ -667,10 +683,10 @@ public class GameGUI extends JFrame {
 
             } else if (status.equals("criticalHit")) {
                 // message to user
-                gameTextLabel.setText( monsters.getName() + " inflicts a critical hit.");
+                gameTextLabel.setText(monsters.getName() + " inflicts a critical hit.");
                 gameTextLabel.revalidate();
                 gameTextLabel.repaint();
-                player.setHealth(playerHealth -= (int) (monsters.getEnemyAttack() * playerCriticalDamageValue));
+                player.setHealth(player.getHealth() - (int) (monsters.getEnemyAttack() * playerCriticalDamageValue));
 
                 // reset GUI to update player attributes
                 statsPanel.removeAll();
@@ -688,7 +704,7 @@ public class GameGUI extends JFrame {
                 gameTextLabel.setText(monsters.getName() + " hit you.");
                 gameTextLabel.revalidate();
 
-                player.setHealth(playerHealth -= monsters.getEnemyAttack());
+                player.setHealth(player.getHealth() - monsters.getEnemyAttack());
 
                 // reset GUI to update player attributes
                 statsPanel.removeAll();
@@ -698,61 +714,89 @@ public class GameGUI extends JFrame {
             }
 
             if (player.getHealth() <= 0) {
+                // Decrement remaining lives
+                remainingLives--;
 
-                // message to user
-                player.setHealth(0);
-                statsPanel.removeAll();
-                statsPanel.revalidate();
-                statsPanel.repaint();
-                addStatsToPanel(statsPanel);
-                playerTextLabel.setText(" ");
-                playerTextLabel.revalidate();
-                playerTextLabel.repaint();
-                gameTextLabel.setText(monsters.getName() + " killed you.");
-                gameTextLabel.revalidate();
-                gameTextLabel.repaint();
-                playerAttackButton.setVisible(false);
-                rightArrow.setVisible(true);
-                upArrow.setVisible(true);
-                leftArrow.setVisible(true);
+                // Check if remaining lives are zero
+                if (remainingLives <= 0) {
+                    // Game over, ask if the player wants to restart or exit
+                    int restartChoice = JOptionPane.showConfirmDialog(null, "You were killed by " + monsters.getName() + ". You have no remaining lives. Do you want to restart the game?", "Game Over", JOptionPane.YES_NO_OPTION);
+                    if (restartChoice == JOptionPane.YES_OPTION) {
+                        restartGame();
+                    } else {
+                        // Exit the game
+                        System.exit(0);
+                    }
+                } else {
+                    // Prompt the user with a dialog box
+                    int choice = JOptionPane.showConfirmDialog(null, "You were killed by " + monsters.getName() + ". Remaining lives: " + remainingLives + ". Do you want to continue?", "Game Over", JOptionPane.YES_NO_OPTION);
+                    deaths++;
 
-
-                return;
+                    if (choice == JOptionPane.YES_OPTION) {
+                        // Player wants to continue, reset player's health
+                        player.setHealth(player.getMaxHealth());
+                        player.getHealth();
+                        System.out.println(player.getHealth());
+                        statsPanel.removeAll();
+                        statsPanel.revalidate();
+                        statsPanel.repaint();
+                        addStatsToPanel(statsPanel);
+                        playerTextLabel.setText("");
+                        playerTextLabel.revalidate();
+                        playerTextLabel.repaint();
+                        // Add any other actions needed to reset the game state
+                    } else {
+                        // Player doesn't want to continue, perform game over actions
+                        player.setHealth(0);
+                        statsPanel.removeAll();
+                        statsPanel.revalidate();
+                        statsPanel.repaint();
+                        addStatsToPanel(statsPanel);
+                        playerTextLabel.setText("");
+                        playerTextLabel.revalidate();
+                        playerTextLabel.repaint();
+                        gameTextLabel.setText(monsters.getName() + " killed you.\n +" +
+                                "Game Over.");
+                        gameTextLabel.revalidate();
+                        gameTextLabel.repaint();
+                        playerAttackButton.setVisible(false);
+                        rightArrow.setVisible(true);
+                        upArrow.setVisible(true);
+                        leftArrow.setVisible(true);
+                    }
+                }
             }
-
         }
-
-
     }
 
     public void bossCombat() {
-        if(inCombat){
+        if (inCombat) {
             textArea.setVisible(false);
             bossMonsterHealth = bossMonster.getEnemyHealth();
 
-            // if bleed is inflicted, player will take damage on their turn
-            // player will only take 3 turns of bleed damage
+            // If bleed is inflicted, player will take damage on their turn
+            // Player will only take 3 turns of bleed damage
             if (bleed) {
-                bleedCount += 1;
+                bleedCount++;
 
-                // message to user
+                // Message to user
                 playerTextLabel.setText("You take bleed damage. You hit the " + bossMonster.getName() + ".\n");
                 playerTextLabel.revalidate();
                 playerTextLabel.repaint();
 
-                // damage to monster
+                // Damage to boss monster
                 bossMonster.setEnemyHealth(bossMonsterHealth -= player.getAttack());
 
-                // player bleed damage
-                player.setHealth(playerHealth -= playerBleedDamageValue);
+                // Player bleed damage
+                player.setHealth(player.getHealth() - playerBleedDamageValue);
 
-                // only 3 turns of bleed damage
+                // Only 3 turns of bleed damage
                 if (bleedCount == 3) {
                     bleedCount = 0;
                     bleed = false;
                 }
 
-                // reset GUI to update player attributes
+                // Reset player stats in GUI
                 statsPanel.removeAll();
                 statsPanel.revalidate();
                 statsPanel.repaint();
@@ -765,17 +809,22 @@ public class GameGUI extends JFrame {
 
                 bossMonster.setEnemyHealth(bossMonsterHealth -= player.getAttack());
             }
-            if (bossMonster.getEnemyHealth() <= 0) {
 
+            // Check if the boss monster is defeated
+            if (bossMonster.getEnemyHealth() <= 0) {
+                // Update player's experience
                 int expDrop = updatedBoss.getExpDrop(); // Use updated boss stats
                 player.addExp(expDrop);
                 System.out.println("EXP from boss: " + expDrop);
                 player.addExp(expDrop);
+
                 // Check if the player has leveled up
                 while (player.getExperience() >= player.getExpToLevelUp()) {
                     player.setExperience(0);
                     player.levelUp();
                 }
+
+                // Reset game state
                 maxHeal = 3;
                 healCount = 0;
                 statsPanel.removeAll();
@@ -783,7 +832,7 @@ public class GameGUI extends JFrame {
                 statsPanel.repaint();
                 addStatsToPanel(statsPanel);
 
-                // message to user
+                // Message to user
                 playerTextLabel.setText("");
                 playerTextLabel.revalidate();
                 playerTextLabel.repaint();
@@ -797,91 +846,65 @@ public class GameGUI extends JFrame {
                 textArea.setVisible(true);
                 inCombat = false;
                 bossCombat = false;
+                remainingLives = MAX_LIVES;
                 goToNextLevel();
                 return;
             }
 
-
-            // random number to decide what type of hit monster will do
-            Random rng = new Random();
-            int selectedStatusEffect = rng.nextInt((4));
-
-            // using random number to select a status type
-            // status types are bleedHit, criticalHit, missHit, and normalHit
-            status = statusEffect.get(selectedStatusEffect);
-
-            if (status.equals("bleedHit")) {
-                // message to user
-                gameTextLabel.setText(bossMonster.getName() + " inflicts a bleeding hit.\n");
-                gameTextLabel.revalidate();
-                gameTextLabel.repaint();
-
-                // player takes hit and will take bleed damage on their turn
-                player.setHealth(playerHealth -= bossMonster.getEnemyAttack());
-
-                // reset GUI to update player attributes
-                statsPanel.removeAll();
-                statsPanel.revalidate();
-                statsPanel.repaint();
-                addStatsToPanel(statsPanel);
-
-                // bleed status
-                bleed = true;
-
-            } else if (status.equals("criticalHit")) {
-                // message to user
-                gameTextLabel.setText( bossMonster.getName() + " inflicts a critical hit.\n");
-                gameTextLabel.revalidate();
-                gameTextLabel.repaint();
-                player.setHealth(playerHealth -= (int) (bossMonster.getEnemyAttack() * playerCriticalDamageValue));
-
-                // reset GUI to update player attributes
-                statsPanel.removeAll();
-                statsPanel.revalidate();
-                statsPanel.repaint();
-                addStatsToPanel(statsPanel);
-
-            } else if (status.equals("missHit")) {
-                // message to user
-                gameTextLabel.setText(bossMonster.getName() + "'s hit missed.\n");
-                gameTextLabel.revalidate();
-                gameTextLabel.repaint();
-            } else {
-                // message to user
-                gameTextLabel.setText("     " + bossMonster.getName() + " hit you.\n");
-                gameTextLabel.revalidate();
-
-                player.setHealth(playerHealth -= bossMonster.getEnemyAttack());
-
-                // reset GUI to update player attributes
-                statsPanel.removeAll();
-                statsPanel.revalidate();
-                statsPanel.repaint();
-                addStatsToPanel(statsPanel);
-            }
-
+            // Check if player's health is zero or below
             if (player.getHealth() <= 0) {
+                // Decrement remaining lives
+                remainingLives--;
 
-                // message to user
-                player.setHealth(0);
-                statsPanel.removeAll();
-                statsPanel.revalidate();
-                statsPanel.repaint();
-                addStatsToPanel(statsPanel);
-                playerTextLabel.setText(" ");
-                playerTextLabel.revalidate();
-                playerTextLabel.repaint();
-                gameTextLabel.setText(bossMonster.getName() + " killed you.\n");
-                gameTextLabel.revalidate();
-                gameTextLabel.repaint();
-                playerAttackButton.setVisible(false);
-                rightArrow.setVisible(true);
-                upArrow.setVisible(true);
-                leftArrow.setVisible(true);
-                return;
+                // Check if remaining lives are zero
+                if (remainingLives <= 0) {
+                    // Game over, ask if the player wants to restart or exit
+                    int restartChoice = JOptionPane.showConfirmDialog(null, "You were killed by " + bossMonster.getName() + ". You have no remaining lives. Do you want to restart the game?", "Game Over", JOptionPane.YES_NO_OPTION);
+                    if (restartChoice == JOptionPane.YES_OPTION) {
+                        restartGame();
+                    } else {
+                        // Exit the game
+                        System.exit(0);
+                    }
+                } else {
+                    // Prompt the user with a dialog box
+                    int choice = JOptionPane.showConfirmDialog(null, "You were killed by " + bossMonster.getName() + ". Remaining lives: " + remainingLives + ". Do you want to continue?", "Game Over", JOptionPane.YES_NO_OPTION);
+                    deaths++;
+
+                    if (choice == JOptionPane.YES_OPTION) {
+                        // Player wants to continue, reset player's health
+                        player.setHealth(player.getMaxHealth());
+                        statsPanel.removeAll();
+                        statsPanel.revalidate();
+                        statsPanel.repaint();
+                        addStatsToPanel(statsPanel);
+                        playerTextLabel.setText("");
+                        playerTextLabel.revalidate();
+                        playerTextLabel.repaint();
+                        // Add any other actions needed to reset the game state
+                    } else {
+                        // Player doesn't want to continue, perform game over actions
+                        player.setHealth(0);
+                        statsPanel.removeAll();
+                        statsPanel.revalidate();
+                        statsPanel.repaint();
+                        addStatsToPanel(statsPanel);
+                        playerTextLabel.setText("");
+                        playerTextLabel.revalidate();
+                        playerTextLabel.repaint();
+                        gameTextLabel.setText(bossMonster.getName() + " killed you.");
+                        gameTextLabel.revalidate();
+                        gameTextLabel.repaint();
+                        playerAttackButton.setVisible(false);
+                        rightArrow.setVisible(true);
+                        upArrow.setVisible(true);
+                        leftArrow.setVisible(true);
+                    }
+                }
             }
         }
     }
+
 
     public void goToNextLevel() {
         int level = dungeon.getLevel();
@@ -960,7 +983,7 @@ public class GameGUI extends JFrame {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(REGULAR_ENEMY_FILE))) {
             writer.write("Orc\n");
             writer.write("1\n");
-            writer.write("50\n");
+            writer.write("10\n");
             writer.write("10\n");
             writer.write("2\n");
         } catch (IOException e) {
@@ -970,10 +993,10 @@ public class GameGUI extends JFrame {
         // Write the original boss stats back to the file
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(BOSS_ENEMY_FILE))) {
             writer.write("King Orc\n");
+            writer.write("1\n");
+            writer.write("10\n");
+            writer.write("10\n");
             writer.write("5\n");
-            writer.write("250\n");
-            writer.write("20\n");
-            writer.write("50\n");
         } catch (IOException e) {
             System.out.println("Error writing to boss file: " + e.getMessage());
         }
@@ -997,6 +1020,37 @@ public class GameGUI extends JFrame {
         initialBoss.setEnemyHealth(50); // Initial health 100
         initialBoss.setEnemyAttack(10); // Initial attack 50
         initialBoss.setExpDrop(5); // Initial exp drop 50
+    }
+
+    private void restartGame() {
+        // Reset the player's stats to their initial state
+        player.setHealth(player.getMaxHealth());
+        player.setAttack(10);
+        player.setExperience(0);
+        player.setLevel(1);
+        inCombat = false;
+        remainingLives = MAX_LIVES;
+        deaths = 0;
+        currentRoom = startRoom;
+        textArea.setText(currentRoom.getDescription());
+        statsPanel.removeAll();
+        statsPanel.revalidate();
+        statsPanel.repaint();
+        addStatsToPanel(statsPanel);
+        textArea.setVisible(true);
+        playerTextLabel.setVisible(true);
+        playerTextLabel.setText("");
+        playerTextLabel.revalidate();
+        playerTextLabel.repaint();
+        gameTextLabel.setText(" ");
+        gameTextLabel.revalidate();
+        gameTextLabel.repaint();
+        playerAttackButton.setVisible(false);
+        rightArrow.setVisible(true);
+        upArrow.setVisible(true);
+        leftArrow.setVisible(true);
+        System.out.println("Restarting game");
+
     }
 
 
