@@ -8,7 +8,6 @@ public class Character {
     private int attack;
     private int level;
     private int expToLevelUp = 5;
-
     private int maxHealth;
 
 
