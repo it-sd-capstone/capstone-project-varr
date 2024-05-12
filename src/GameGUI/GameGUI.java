@@ -1171,7 +1171,7 @@ public class GameGUI extends JFrame {
             writer.write("Orc\n");
             writer.write("1\n");
             writer.write("10\n");
-            writer.write("10\n");
+            writer.write("2\n");
             writer.write("2\n");
         } catch (IOException e) {
             System.out.println("Error writing to regular enemy file: " + e.getMessage());
@@ -1181,8 +1181,8 @@ public class GameGUI extends JFrame {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(BOSS_ENEMY_FILE))) {
             writer.write("King Orc\n");
             writer.write("1\n");
-            writer.write("10\n");
-            writer.write("10\n");
+            writer.write("20\n");
+            writer.write("5\n");
             writer.write("5\n");
         } catch (IOException e) {
             System.out.println("Error writing to boss file: " + e.getMessage());
