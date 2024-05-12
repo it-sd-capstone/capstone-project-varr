@@ -9,8 +9,8 @@ public class LevelUpEnemies {
     private GameGUI gui;
     private Dungeon dungeon;
 
-    private static final String REGULAR_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.5\\capstone-project-varr\\Orc.txt";
-    private static final String BOSS_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.5\\capstone-project-varr\\Level1Boss.txt";
+    private static final String REGULAR_ENEMY_FILE = "capstone-project-varr\\Orc.txt";
+    private static final String BOSS_ENEMY_FILE = "capstone-project-varr\\Level1Boss.txt";
 
     private Monsters regularEnemy;
     private Monsters boss;
