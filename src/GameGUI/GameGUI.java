@@ -73,7 +73,7 @@ public class GameGUI extends JFrame {
 
     private String BOSS_ENEMY_FILE = "capstone-project-varr\\Level1Boss.txt";
 
-    private static String INITIAL_ENEMY_FILE = "C:capstone-project-varr\\Orc.txt";
+    private static String INITIAL_ENEMY_FILE = "capstone-project-varr\\Orc.txt";
     private static String INITIAL_BOSS_FILE = "capstone-project-varr\\Level1Boss.txt";
 
     private static String WEAPON_FILE = "capstone-project-varr\\sword.txt";
