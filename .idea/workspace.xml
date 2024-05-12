@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="35832858-b694-4d48-8abe-05d56fb84599" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Level1Boss.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Orc.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/save.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/GameGUI/GameGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameGUI/GameGUI.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -46,13 +45,13 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Allen/Documents/CVTC/Capstone/capstone-project-varr&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Allen/Documents/CVTC/Capstone/Capstone try clone/capstone-project-varr&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
@@ -89,7 +88,15 @@
       <workItem from="1714679669721" duration="7265000" />
       <workItem from="1714840183216" duration="283000" />
       <workItem from="1714867518798" duration="24000" />
-      <workItem from="1714878493669" duration="4907000" />
+      <workItem from="1714878493669" duration="5265000" />
+      <workItem from="1714941994156" duration="340000" />
+      <workItem from="1714949588027" duration="3738000" />
+      <workItem from="1715126682205" duration="87000" />
+      <workItem from="1715135304410" duration="64000" />
+      <workItem from="1715135426657" duration="221000" />
+      <workItem from="1715295696427" duration="29000" />
+      <workItem from="1715296676181" duration="2521000" />
+      <workItem from="1715480325418" duration="4428000" />
     </task>
     <servers />
   </component>

@@ -41,6 +41,9 @@ public class GameGUI extends JFrame {
     private static final int playerBleedDamageValue = 1;
     private static final double playerCriticalDamageValue = 1.5;
 
+    private static int currentRow = 2;
+    private static int currentColumn = 1;
+
     JPanel statsPanel;
     JButton playerAttackButton = new JButton("Attack");
     JLabel gameTextLabel;
@@ -61,11 +64,11 @@ public class GameGUI extends JFrame {
 
     private LevelUpEnemies levelUpEnemies = new LevelUpEnemies();
 
-    private static String REGULAR_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Orc.txt";
-    private String BOSS_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Level1Boss.txt";
+    private static String REGULAR_ENEMY_FILE = "Orc.txt";
+    private String BOSS_ENEMY_FILE = "Level1Boss.txt";
 
-    private static String INITIAL_ENEMY_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Orc.txt";
-    private static String INITIAL_BOSS_FILE = "C:\\Users\\Nhia Vue\\OneDrive\\Desktop\\v0.0.4\\capstone-project-varr\\Level1Boss.txt";
+    private static String INITIAL_ENEMY_FILE = "Orc.txt";
+    private static String INITIAL_BOSS_FILE = "Level1Boss.txt";
 
     Monsters enemyMonsterFile = Monsters.readMonstersFromFile(REGULAR_ENEMY_FILE);
     Monsters bossFile = Monsters.readMonstersFromFile(REGULAR_ENEMY_FILE);
@@ -85,7 +88,7 @@ public class GameGUI extends JFrame {
         } else {
             player.setName("Default Name");
         }
-        dungeon = new Dungeon(3, 4);
+        dungeon = new Dungeon(3, 3);
 
         setTitle("Varr Dungeon");
         setSize(800, 500);
@@ -218,80 +221,92 @@ public class GameGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 loadData("save.txt");
+                currentRoom = dungeon.getRoom(currentRow,currentColumn);
+                textArea.setVisible(true);
+                textArea.setText(currentRoom.getDescription());
+                playerAttackButton.setVisible(false);
+                leftArrow.setVisible(true);
+                upArrow.setVisible(true);
+                rightArrow.setVisible(true);
+                playerTextLabel.setText(" ");
+                bossCombat = false;
+                bleedCount = 0;
             }
         });
 
-        dungeon = new Dungeon(3, 4);
+        dungeon = new Dungeon(3, 3);
         // create rooms and set up exits
          startRoom = new Room("You find yourself standing at the entrance of the dungeon.\n" +
                 "Dim torchlight flickers against the cold stone walls, casting long shadows across the floor. \n" +
                 "The air is thick with a musty scent, and a sense of anticipation hangs in the air as you prepare to embark on your perilous journey.\n\n\n" +
                  "You are in the bottom middle room.\n" +
-                "Where will you go ?", true);
+                 "Your exits are left, up, or right.\n" +
+                "Where will you go?", true);
 
         Room bottomLeft = new Room("The room is small and cramped, with barely enough space to maneuver.\n" +
                 "Cobwebs cling to the corners, and the floor is littered with debris from fallen stones.\n" +
                 "You can hear the distant echo of dripping water, adding to the eerie atmosphere of the dungeon.\n\n\n" +
                 "You are in the bottom left room.\n" +
-                "Where will you go ?", true);
+                "Your exits are up or right.\n" +
+                "Where will you go?", true);
 
         Room bottomRight = new Room("As you enter, a gust of stale air rushes past you, carrying the scent of decay.\n" +
                 "The room is shrouded in darkness, illuminated only by faint beams of moonlight filtering in through narrow cracks in the ceiling.\n" +
                 "You can sense danger lurking in the shadows, and your instincts tell you to proceed with caution.\n\n\n" +
                 "You are in the bottom right room.\n" +
-                "Where will you go ?", true);
+                "Your exits are left or up.\n" +
+                "Where will you go?", true);
 
         Room middleLeft = new Room("This room is larger than the others you've encountered so far, with high ceilings and expansive walls adorned with faded tapestries.\n" +
                 "The floor is smooth and uneven, worn down by centuries of footprints.\n" +
                 "You can hear the faint sound of footsteps echoing in the distance, hinting at the presence of other creatures within the dungeon\n\n\n"+
-                "The door behind you closes, and you realize that there's no going back to the room before\n" +
+                "The door behind you closes, and you realize that there's no going back to the room before.\n\n" +
                 "You are in the middle left room.\n" +
-                "Where will you go ?", true);
+                "Your exits are up or right.\n" +
+                "Where will you go?", true);
 
 
         Room middleMiddle = new Room(" You step into the heart of the dungeon, surrounded by towering pillars of stone that stretch up towards the ceiling.\n" +
                 "The air is heavy with a sense of foreboding, and a chill runs down your spine as you gaze into the darkness ahead.\n" +
                 "You can't help but feel a sense of trepidation as you press forward into the unknown.\n\n\n"+
-                "The door behind you closes, and you realize that there's no going back to the room before\n" +
+                "The door behind you closes, and you realize that there's no going back to the room before\n\n" +
                 "You are in the middle middle room.\n" +
-                "Where will you go ?", true);
+                "Your exits are left, up, or right.\n" +
+                "Where will you go?", true);
 
         Room middleRight = new Room("The room is bathed in a soft, golden light that emanates from a crack in the wall.\n" +
                 "You can see intricate carvings etched into the stone, depicting scenes of ancient battles and forgotten heroes.\n" +
                 "Despite the beauty of the artwork, a sense of unease washes over you, as if the walls themselves are watching your every move..\n\n\n"+
-                "The door behind you closes, and you realize that there's no going back to the room before\n" +
+                "The door behind you closes, and you realize that there's no going back to the room before.\n\n" +
                 "You are in the middle right room.\n" +
-                "Where will you go ?", true);
+                "Your exits are left or up .\n" +
+                "Where will you go?", true);
 
 
         Room topLeft = new Room("As you enter, you are greeted by the sound of rushing water and the faint scent of damp earth.\n" +
                 " The room is dominated by a large, ornate fountain, its waters shimmering in the dim light.\n" +
                 " Moss clings to the walls, adding to the sense of tranquility that permeates the space.\n\n\n"+
-                "The door behind you closes, and you realize that there's no going back to the room before. You feel an eerie presence in the air.\n" +
-                "You only hope you can survive whatever is ahead.\n" +
                 "You are in the top left room.\n" +
-                "Where will you go ?", true);
+                "Your only exit is to the right.\n" +
+                "Where will you go?", true);
 
-
-        Room topMiddle = new Room("This room is filled with the sound of chirping birds and rustling leaves, creating a stark contrast to the darkness of the dungeon outside.\n" +
-                "Sunlight streams in through a hole in the ceiling, illuminating the space with a warm, golden glow.\n" +
-                "You can't help but feel a sense of relief as you bask in the light, if only for a moment.\n\n\n"+
-                "The door behind you closes, and you realize that there's no going back to the room before. You feel an eerie presence in the air.\n" +
-                "You only hope you can survive whatever is ahead.\n" +
-                "You are in the top middle room.\n" +
-                "Where will you go ?", true);
-
-        Room topRight = new Room("You stand on the threshold of the final chamber, your heart pounding in your chest as you prepare to face the ultimate challenge.\n" +
+        Room bossRoom = new Room("You stand on the threshold of the final chamber, your heart pounding in your chest as you prepare to face the ultimate challenge.\n" +
                 "The room is vast and cavernous, with towering pillars of stone rising up towards the heavens.\n" +
                 " At the center of the chamber stands a massive throne, its occupant cloaked in shadow.\n" +
                 "You can feel the raw power emanating from the figure, and you steel yourself for the battle ahead\n\n\n"+
                 "The door behind you closes, and you realize that there's no going back to the room before. You feel an eerie presence in the air.\n" +
                 "You only hope you can survive whatever is ahead.\n" +
-                "You are in the top right room.\n" +
-                "Where will you go ?", true);
+                "You are in the boss's room.\n", true);
+
+        Room topRight = new Room("This room is filled with the sound of chirping birds and rustling leaves, creating a stark contrast to the darkness of the dungeon outside.\n" +
+                "Sunlight streams in through a hole in the ceiling, illuminating the space with a warm, golden glow.\n" +
+                "You can't help but feel a sense of relief as you bask in the light, if only for a moment.\n\n\n"+
+                "You are in the top topRight.\n" +
+                "Your only exit is to the left.\n" +
+                "Where will you go?", true);
 
 
-        Room bossRoom = new Room("", true);
+        //Room bossRoom = new Room("", true);
 
         //Bottom row
         startRoom.addExit("north", middleMiddle);
@@ -308,7 +323,7 @@ public class GameGUI extends JFrame {
         middleLeft.addExit("north", topLeft);
         middleLeft.addExit("east", middleMiddle);
 
-        middleMiddle.addExit("north", topMiddle);
+        middleMiddle.addExit("north", bossRoom);
         middleMiddle.addExit("west", middleLeft);
         middleMiddle.addExit("east", middleRight);
 
@@ -316,15 +331,15 @@ public class GameGUI extends JFrame {
         middleRight.addExit("west", middleMiddle);
 
         //Top row
-        topLeft.addExit("north", bossRoom);
-        topLeft.addExit("east", topMiddle);
+        //topLeft.addExit("north", null);
+        topLeft.addExit("east", bossRoom);
 
-        topMiddle.addExit("north", bossRoom);
-        topMiddle.addExit("east", topRight);
-        topMiddle.addExit("west", topLeft);
+        //bossRoom.addExit("north", bossRoom);
+        //bossRoom.addExit("east", topRight);
+        //bossRoom.addExit("west", topLeft);
 
-        topRight.addExit("north", bossRoom);
-        topRight.addExit("west", topMiddle);
+        //topRight.addExit("north",null );
+        topRight.addExit("west", bossRoom);
 
 
         // set the rooms in the dungeon
@@ -339,13 +354,32 @@ public class GameGUI extends JFrame {
         dungeon.setRoom(2, 2, bottomRight);
         // Add action listeners to arrow buttons
 
-        currentRoom = startRoom;
+        //currentRoom = startRoom;
+        currentRoom = dungeon.getRoom(currentRow, currentColumn);
         textArea.setText(currentRoom.getDescription());
         leftArrow.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Left arrow clicked");
+                //System.out.println("Left arrow clicked");
                 gameTextLabel.setText(" ");
+
+                // this is tracking which room of the array the player is in
+                currentColumn -= 1;
+                if (currentColumn < 0) {
+                    gameTextLabel.setText("You can't go that way.");
+                    currentColumn = 0;
+                    return;
+                }
+                else if (currentRow < 0) {
+                    gameTextLabel.setText("You can't go that way.");
+                    currentRow = 0;
+                    return;
+                }
+                currentRoom = dungeon.getRoom(currentRow, currentColumn);
+                textArea.setText(currentRoom.getDescription());
+                checkForEncounter(dungeon,currentRoom);
+
+                /*
                 Room exitRoom = currentRoom.getExit("west");
                 if (exitRoom!= null) {
                     currentRoom = exitRoom;
@@ -355,6 +389,7 @@ public class GameGUI extends JFrame {
                     //System.out.println("You can't go that way.");
                     gameTextLabel.setText("You can't go that way.");
                 }
+                 */
             }
         });
 
@@ -362,8 +397,21 @@ public class GameGUI extends JFrame {
         upArrow.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Up arrow clicked");
+                //System.out.println("Up arrow clicked");
                 gameTextLabel.setText(" ");
+
+                // this is tracking which room of the array the player is in
+                currentRow -= 1;
+                if (currentRow < 0) {
+                    gameTextLabel.setText("You can't go that way.");
+                    currentRow = 0;
+                    return;
+                }
+                currentRoom = dungeon.getRoom(currentRow, currentColumn);
+                textArea.setText(currentRoom.getDescription());
+                checkForEncounter(dungeon,currentRoom);
+
+                /*
                 Room exitRoom = currentRoom.getExit("north");
                 if (exitRoom!= null) {
                     currentRoom = exitRoom;
@@ -373,6 +421,7 @@ public class GameGUI extends JFrame {
                     //System.out.println("You can't go that way.");
                     gameTextLabel.setText("You can't go that way.");
                 }
+                 */
             }
         });
 
@@ -380,8 +429,26 @@ public class GameGUI extends JFrame {
         rightArrow.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Right arrow clicked");
+                //System.out.println("Right arrow clicked");
                 gameTextLabel.setText(" ");
+
+                // this is tracking which room of the array the player is in
+                currentColumn += 1;
+                if (currentColumn > 2) {
+                    gameTextLabel.setText("You can't go that way.");
+                    currentColumn = 2;
+                    return;
+                }
+                else if (currentRow < 0) {
+                    gameTextLabel.setText("You can't go that way.");
+                    currentRow = 0;
+                    return;
+                }
+                currentRoom = dungeon.getRoom(currentRow, currentColumn);
+                textArea.setText(currentRoom.getDescription());
+                checkForEncounter(dungeon,currentRoom);
+
+                /*
                 Room exitRoom = currentRoom.getExit("east");
                 if (exitRoom!= null) {
                     currentRoom = exitRoom;
@@ -391,6 +458,7 @@ public class GameGUI extends JFrame {
                    // System.out.println("You can't go that way.");
                     gameTextLabel.setText("You can't go that way.");
                 }
+                 */
             }
         });
 
@@ -443,7 +511,7 @@ public class GameGUI extends JFrame {
 
 
         player.setName("TestName");
-        player.setHealth(10000);
+        player.setHealth(1000);
         player.setMaxHealth(100);
         player.setAttack(10);
         player.setLevel(1);
@@ -451,13 +519,11 @@ public class GameGUI extends JFrame {
         player.setExpToLevelUp(5);
 
 
-
-
         //saveGame("saveFile1");
         //loadData("saveFile1");
         GameGUI game = new GameGUI();
         game.resetEnemiesToInitialState();
-        new Dungeon(3,4);
+        new Dungeon(3,3);
 
 
 
@@ -487,25 +553,15 @@ public class GameGUI extends JFrame {
         inventoryPanel.add(inventoryList);
     }
 
-    // This is the outline for the saveGame method
-    // Will need to update to save our data
 
-    // May need to serialize data
+    // save player attributes/data
     public void saveGame(String fileNameToSave) {
-        // This could be made a path if we have a folder for saves
 
-        // Can do if (saveFile.createNewFile()) to check of the file
-        // has already been created
-
-        // This will overwrite the file. Do we want to overwrite files??
         try {
 
             // create file
             BufferedWriter saveToFile = new BufferedWriter(new FileWriter(fileNameToSave));
 
-            // Will need to expand this for dungeon levels
-
-            // For example
             saveToFile.write(player.getName());
             saveToFile.newLine();
             saveToFile.append(String.valueOf(player.getHealth()));
@@ -515,7 +571,18 @@ public class GameGUI extends JFrame {
             saveToFile.append(String.valueOf(player.getLevel()));
             saveToFile.newLine();
             saveToFile.append(String.valueOf(player.getExperience()));
-            //System.out.println("File Saved.");
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(player.getExpToLevelUp()));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(dungeon.getLevel()));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(healCount));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(currentRow));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(currentColumn));
+
+
             gameTextLabel.setText("File saved successfully.");
             gameTextLabel.revalidate();
             gameTextLabel.repaint();
@@ -526,10 +593,8 @@ public class GameGUI extends JFrame {
         }
     }
 
-    // This is the outline for the loadGame method
-    // Will need to update to save our data
 
-    // May need to serialize data
+    // load player attributes/data
     public void loadData(String fileNameToLoad) {
         try {
 
@@ -542,8 +607,12 @@ public class GameGUI extends JFrame {
             player.setAttack(Integer.parseInt(readLoadFile.readLine()));
             player.setLevel(Integer.parseInt(readLoadFile.readLine()));
             player.setExperience(Integer.parseInt(readLoadFile.readLine()));
+            player.setExpToLevelUp(Integer.parseInt(readLoadFile.readLine()));
+            dungeon.setLevel(Integer.parseInt(readLoadFile.readLine()));
+            healCount = Integer.parseInt(readLoadFile.readLine());
+            currentRow = Integer.parseInt(readLoadFile.readLine());
+            currentColumn = Integer.parseInt(readLoadFile.readLine());
 
-            //System.out.println("Load successful.");
             gameTextLabel.setText("Load successful.");
             readLoadFile.close();
 
@@ -561,18 +630,25 @@ public class GameGUI extends JFrame {
         if(inCombat) {
             textArea.setVisible(false);
             monsterHealth = monsters.getEnemyHealth();
+            playerHealth = player.getHealth();
 
-
+            String playerMessage = "";
 
             // if bleed is inflicted, player will take damage on their turn
             // player will only take 3 turns of bleed damage
             if (bleed) {
                 bleedCount += 1;
 
-                // message to user
+                // player bis bleeding and player hit monster message
+                playerMessage += "<html><br><br>You take bleed damage.<br>You hit the " + monsters.getName() + ".<br>";
+                gameTextLabel.setText(playerMessage);
+
+
+                /*
                 playerTextLabel.setText("You take bleed damage. You hit the " + monsters.getName() + ".");
                 playerTextLabel.revalidate();
                 playerTextLabel.repaint();
+                */
 
                 // damage to monster
                 monsters.setEnemyHealth(monsterHealth -= player.getAttack());
@@ -593,9 +669,16 @@ public class GameGUI extends JFrame {
                 addStatsToPanel(statsPanel);
 
             } else {
+
+                // hit monster message
+                playerMessage = "<html><br><br>You hit the " + monsters.getName() + ".<br>";
+                gameTextLabel.setText(playerMessage);
+
+                /*
                 playerTextLabel.setText("You hit the " + monsters.getName() + ".");
                 playerTextLabel.revalidate();
                 playerTextLabel.repaint();
+                */
 
                 monsters.setEnemyHealth(monsterHealth -= player.getAttack());
             }
@@ -632,9 +715,9 @@ public class GameGUI extends JFrame {
                 upArrow.setVisible(true);
                 leftArrow.setVisible(true);
                 inCombat = false;
+                bleed = false;
 
                 // reset GUI to update player attributes
-
 
                 return;
             }
@@ -647,11 +730,18 @@ public class GameGUI extends JFrame {
             // status types are bleedHit, criticalHit, missHit, and normalHit
             status = statusEffect.get(selectedStatusEffect);
 
+            String monsterMessage = "";
             if (status.equals("bleedHit")) {
                 // message to user
-                gameTextLabel.setText(monsters.getName() + " inflicts a bleeding hit.");
+                monsterMessage = monsters.getName() + " inflicts a bleeding hit.<br></html>";
+                playerMessage += monsterMessage;
+                gameTextLabel.setText(playerMessage);
+
+                //gameTextLabel.setText(monsters.getName() + " inflicts a bleeding hit.");
+
                 gameTextLabel.revalidate();
                 gameTextLabel.repaint();
+
 
                 // player takes hit and will take bleed damage on their turn
                 player.setHealth(playerHealth -= monsters.getEnemyAttack());
@@ -667,9 +757,15 @@ public class GameGUI extends JFrame {
 
             } else if (status.equals("criticalHit")) {
                 // message to user
-                gameTextLabel.setText( monsters.getName() + " inflicts a critical hit.");
+                monsterMessage = monsters.getName() + " inflicts a critical hit.</html>";
+                playerMessage += monsterMessage;
+                gameTextLabel.setText(playerMessage);
+
+                //gameTextLabel.setText( monsters.getName() + " inflicts a critical hit.");
+
                 gameTextLabel.revalidate();
                 gameTextLabel.repaint();
+
                 player.setHealth(playerHealth -= (int) (monsters.getEnemyAttack() * playerCriticalDamageValue));
 
                 // reset GUI to update player attributes
@@ -680,13 +776,24 @@ public class GameGUI extends JFrame {
 
             } else if (status.equals("missHit")) {
                 // message to user
-                gameTextLabel.setText(monsters.getName() + "'s hit missed.");
+                monsterMessage = monsters.getName() + "'s hit missed you.</html>";
+                playerMessage += monsterMessage;
+                gameTextLabel.setText(playerMessage);
+
+                //gameTextLabel.setText(monsters.getName() + "'s hit missed.");
+
                 gameTextLabel.revalidate();
                 gameTextLabel.repaint();
             } else {
                 // message to user
-                gameTextLabel.setText(monsters.getName() + " hit you.");
+                monsterMessage = monsters.getName() + " hits you.</html>";
+                playerMessage += monsterMessage;
+                gameTextLabel.setText(playerMessage);
+
+                //gameTextLabel.setText(monsters.getName() + " hit you.");
+
                 gameTextLabel.revalidate();
+                gameTextLabel.repaint();
 
                 player.setHealth(playerHealth -= monsters.getEnemyAttack());
 
@@ -715,7 +822,7 @@ public class GameGUI extends JFrame {
                 rightArrow.setVisible(true);
                 upArrow.setVisible(true);
                 leftArrow.setVisible(true);
-
+                bleed = false;
 
                 return;
             }
@@ -729,16 +836,24 @@ public class GameGUI extends JFrame {
         if(inCombat){
             textArea.setVisible(false);
             bossMonsterHealth = bossMonster.getEnemyHealth();
+            playerHealth = player.getHealth();
+
+            String playerMessage = "";
 
             // if bleed is inflicted, player will take damage on their turn
             // player will only take 3 turns of bleed damage
             if (bleed) {
                 bleedCount += 1;
 
-                // message to user
+                // player is bleeding and hit boss message
+                playerMessage += "<html><br><br>You take bleed damage.<br>You hit the " + bossMonster.getName() + ".<br>";
+                gameTextLabel.setText(playerMessage);
+
+                /*
                 playerTextLabel.setText("You take bleed damage. You hit the " + bossMonster.getName() + ".\n");
                 playerTextLabel.revalidate();
                 playerTextLabel.repaint();
+                 */
 
                 // damage to monster
                 bossMonster.setEnemyHealth(bossMonsterHealth -= player.getAttack());
@@ -759,9 +874,16 @@ public class GameGUI extends JFrame {
                 addStatsToPanel(statsPanel);
 
             } else {
+
+                // player hits boss message
+                playerMessage = "<html><br><br>You hit the " + bossMonster.getName() + ".<br>";
+                gameTextLabel.setText(playerMessage);
+
+                /*
                 playerTextLabel.setText("You hit the " + bossMonster.getName() + ".\n");
                 playerTextLabel.revalidate();
                 playerTextLabel.repaint();
+                 */
 
                 bossMonster.setEnemyHealth(bossMonsterHealth -= player.getAttack());
             }
@@ -797,6 +919,7 @@ public class GameGUI extends JFrame {
                 textArea.setVisible(true);
                 inCombat = false;
                 bossCombat = false;
+                bleed = false;
                 goToNextLevel();
                 return;
             }
@@ -810,9 +933,15 @@ public class GameGUI extends JFrame {
             // status types are bleedHit, criticalHit, missHit, and normalHit
             status = statusEffect.get(selectedStatusEffect);
 
+            String monsterMessage = "";
             if (status.equals("bleedHit")) {
                 // message to user
-                gameTextLabel.setText(bossMonster.getName() + " inflicts a bleeding hit.\n");
+                monsterMessage = bossMonster.getName() + " inflicts a bleeding hit.<br></html>";
+                playerMessage += monsterMessage;
+                gameTextLabel.setText(playerMessage);
+
+                //gameTextLabel.setText(bossMonster.getName() + " inflicts a bleeding hit.\n");
+
                 gameTextLabel.revalidate();
                 gameTextLabel.repaint();
 
@@ -830,7 +959,12 @@ public class GameGUI extends JFrame {
 
             } else if (status.equals("criticalHit")) {
                 // message to user
-                gameTextLabel.setText( bossMonster.getName() + " inflicts a critical hit.\n");
+                monsterMessage = bossMonster.getName() + " inflicts a critical hit.</html>";
+                playerMessage += monsterMessage;
+                gameTextLabel.setText(playerMessage);
+
+                //gameTextLabel.setText( bossMonster.getName() + " inflicts a critical hit.\n");
+
                 gameTextLabel.revalidate();
                 gameTextLabel.repaint();
                 player.setHealth(playerHealth -= (int) (bossMonster.getEnemyAttack() * playerCriticalDamageValue));
@@ -843,13 +977,22 @@ public class GameGUI extends JFrame {
 
             } else if (status.equals("missHit")) {
                 // message to user
-                gameTextLabel.setText(bossMonster.getName() + "'s hit missed.\n");
+                monsterMessage = bossMonster.getName() + "'s hit missed you.</html>";
+                playerMessage += monsterMessage;
+
+                //gameTextLabel.setText(bossMonster.getName() + "'s hit missed.\n");
                 gameTextLabel.revalidate();
                 gameTextLabel.repaint();
             } else {
                 // message to user
-                gameTextLabel.setText("     " + bossMonster.getName() + " hit you.\n");
+                monsterMessage = bossMonster.getName() + " hits you.</html>";
+                playerMessage += monsterMessage;
+                gameTextLabel.setText(playerMessage);
+
+                //gameTextLabel.setText("     " + bossMonster.getName() + " hit you.\n");
+
                 gameTextLabel.revalidate();
+                gameTextLabel.repaint();
 
                 player.setHealth(playerHealth -= bossMonster.getEnemyAttack());
 
@@ -878,6 +1021,7 @@ public class GameGUI extends JFrame {
                 rightArrow.setVisible(true);
                 upArrow.setVisible(true);
                 leftArrow.setVisible(true);
+                bleed = false;
                 return;
             }
         }
@@ -891,8 +1035,19 @@ public class GameGUI extends JFrame {
         levelUpEnemies.reloadEnemyStats(String.valueOf(BOSS_ENEMY_FILE)); // Update monsters with new stats
         if (dungeon != null) {
             dungeon.setLevel(level);
+
+            statsPanel.removeAll();
+            statsPanel.revalidate();
+            statsPanel.repaint();
+            addStatsToPanel(statsPanel);
         }
-        currentRoom = startRoom;
+
+        gameTextLabel.setText("You have reached level " + dungeon.getLevel() + ".");
+
+        //currentRoom = startRoom;
+        currentRow = 2;
+        currentColumn = 1;
+        currentRoom = dungeon.getRoom(currentRow,currentColumn);
         textArea.setText(currentRoom.getDescription());
     }
 
@@ -938,7 +1093,7 @@ public class GameGUI extends JFrame {
             monsters.setExpDrop(Integer.parseInt(monsterLoader.readLine()));
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error loading monster");
+            //System.out.println("Error loading monster");
         }
     }
 
