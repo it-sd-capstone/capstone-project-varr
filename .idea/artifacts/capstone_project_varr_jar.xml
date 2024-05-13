@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="capstone-project-varr:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/capstone_project_varr_jar</output-path>
+    <root id="archive" name="capstone-project-varr.jar">
+      <element id="module-output" name="capstone-project-varr" />
+    </root>
+  </artifact>
+</component>

@@ -19,9 +19,6 @@ public class Character {
     public void addExp(int exp){
         experience += exp;
         checkForLevelUp();
-        System.out.println("Added " + experience);
-        System.out.println("Current experience: " + getExperience());
-
     }
 
 
@@ -38,7 +35,6 @@ public class Character {
         health += 10;
         maxHealth += 10;
         attack += 5;
-        System.out.println("You leveled up! You are now level " + level);
 
     }
     public String getName() {

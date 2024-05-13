@@ -17,8 +17,8 @@ public class Heal {
         } else {
             player.setHealth(newHealth);
         }
-        System.out.println("You have been healed for " + healAmount + " health.");
-        System.out.println("Your current health is " + player.getHealth() + ".");
+        //System.out.println("You have been healed for " + healAmount + " health.");
+        //System.out.println("Your current health is " + player.getHealth() + ".");
     }
 
 }

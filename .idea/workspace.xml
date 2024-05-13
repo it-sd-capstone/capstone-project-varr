@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="capstone-project-varr:jar" />
+    </artifacts-to-build>
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="35832858-b694-4d48-8abe-05d56fb84599" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Level1Boss.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Level1Boss.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Orc.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Orc.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/save.txt" beforeDir="false" afterPath="$PROJECT_DIR$/save.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/GameGUI/GameGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameGUI/GameGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GameGUI/Heal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameGUI/Heal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GameGUI/Inventory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameGUI/Inventory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/GameGUI/LevelUpEnemies.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameGUI/LevelUpEnemies.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/edu/cvtc/varr/Character.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/edu/cvtc/varr/Character.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,7 +107,10 @@
       <workItem from="1715135426657" duration="221000" />
       <workItem from="1715295696427" duration="29000" />
       <workItem from="1715296676181" duration="2521000" />
-      <workItem from="1715480325418" duration="4428000" />
+      <workItem from="1715480325418" duration="4779000" />
+      <workItem from="1715526000113" duration="30000" />
+      <workItem from="1715554953465" duration="1606000" />
+      <workItem from="1715613519958" duration="919000" />
     </task>
     <servers />
   </component>

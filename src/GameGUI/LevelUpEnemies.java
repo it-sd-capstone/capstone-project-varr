@@ -9,8 +9,8 @@ public class LevelUpEnemies {
     private GameGUI gui;
     private Dungeon dungeon;
 
-    private static final String REGULAR_ENEMY_FILE = "capstone-project-varr\\Orc.txt";
-    private static final String BOSS_ENEMY_FILE = "capstone-project-varr\\Level1Boss.txt";
+    private static final String REGULAR_ENEMY_FILE = "Orc.txt";
+    private static final String BOSS_ENEMY_FILE = "Level1Boss.txt";
 
     private Monsters regularEnemy;
     private Monsters boss;
@@ -54,7 +54,6 @@ public class LevelUpEnemies {
                 regularEnemy.setEnemyHealth(regularEnemy.getEnemyHealth() + 10);
                 regularEnemy.setEnemyAttack(regularEnemy.getEnemyAttack() + 5);
                 regularEnemy.setExpDrop(regularEnemy.getExpDrop() + 5);
-                System.out.println("Regular enemy level: " + regularEnemy.getLevel());
 
                 // Write the updated stats back to the file
                 try (BufferedWriter writer = new BufferedWriter(new FileWriter(REGULAR_ENEMY_FILE))) {
@@ -67,9 +66,6 @@ public class LevelUpEnemies {
                     System.out.println("Error writing to regular enemy file: " + e.getMessage());
                 }
 
-                System.out.println("Enemy EXP: " + regularEnemy.getExpDrop());
-                System.out.println("Enemy Health: " + regularEnemy.getEnemyHealth());
-                System.out.println("Enemy Level: " + regularEnemy.getLevel());
             } else {
                 System.out.println("Regular enemy level is null");
             }
@@ -101,9 +97,6 @@ public class LevelUpEnemies {
                     System.out.println("Error writing to boss file: " + e.getMessage());
                 }
 
-                System.out.println("Boss EXP: " + boss.getExpDrop());
-                System.out.println("Boss Health: " + boss.getEnemyHealth());
-                System.out.println("Boss Level: " + boss.getLevel());
             } else {
                 System.out.println("Boss level is null");
             }
