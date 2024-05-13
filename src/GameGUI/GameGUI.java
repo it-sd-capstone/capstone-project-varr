@@ -636,15 +636,18 @@ public class GameGUI extends JFrame {
         if (inCombat) {
             textArea.setVisible(false);
             monsterHealth = monsters.getEnemyHealth();
+            playerHealth = player.getHealth();
+
+            String playerMessage = "";
+
             // if bleed is inflicted, player will take damage on their turn
             // player will only take 3 turns of bleed damage
             if (bleed) {
                 bleedCount += 1;
 
                 // message to user
-                playerTextLabel.setText("You take bleed damage. You hit the " + monsters.getName() + ".");
-                playerTextLabel.revalidate();
-                playerTextLabel.repaint();
+                playerMessage += "<html><br><br>You take bleed damage.<br>You hit the " + monsters.getName() + ".<br>";
+                gameTextLabel.setText(playerMessage);
 
                 // damage to monster
                 monsters.setEnemyHealth(monsterHealth -= player.getAttack());
@@ -665,9 +668,8 @@ public class GameGUI extends JFrame {
                 addStatsToPanel(statsPanel);
 
             } else {
-                playerTextLabel.setText("You hit the " + monsters.getName() + ".");
-                playerTextLabel.revalidate();
-                playerTextLabel.repaint();
+                playerMessage = "<html><br><br>You hit the " + monsters.getName() + ".<br>";
+                gameTextLabel.setText(playerMessage);
 
                 monsters.setEnemyHealth(monsterHealth -= player.getAttack());
             }
@@ -719,9 +721,13 @@ public class GameGUI extends JFrame {
             // status types are bleedHit, criticalHit, missHit, and normalHit
             status = statusEffect.get(selectedStatusEffect);
 
+            String monsterMessage = "";
+
             if (status.equals("bleedHit")) {
                 // message to user
-                gameTextLabel.setText(monsters.getName() + " inflicts a bleeding hit.");
+                monsterMessage = monsters.getName() + " inflicts a bleeding hit.<br></html>";
+                playerMessage += monsterMessage;
+                gameTextLabel.setText(playerMessage);
                 gameTextLabel.revalidate();
                 gameTextLabel.repaint();
 
@@ -739,7 +745,9 @@ public class GameGUI extends JFrame {
 
             } else if (status.equals("criticalHit")) {
                 // message to user
-                gameTextLabel.setText(monsters.getName() + " inflicts a critical hit.");
+                monsterMessage = monsters.getName() + " inflicts a critical hit.</html>";
+                playerMessage += monsterMessage;
+                gameTextLabel.setText(playerMessage);
                 gameTextLabel.revalidate();
                 gameTextLabel.repaint();
                 player.setHealth(player.getHealth() - (int) (monsters.getEnemyAttack() * playerCriticalDamageValue));
@@ -752,13 +760,18 @@ public class GameGUI extends JFrame {
 
             } else if (status.equals("missHit")) {
                 // message to user
-                gameTextLabel.setText(monsters.getName() + "'s hit missed.");
+                monsterMessage = monsters.getName() + "'s hit missed you.</html>";
+                playerMessage += monsterMessage;
+                gameTextLabel.setText(playerMessage);
                 gameTextLabel.revalidate();
                 gameTextLabel.repaint();
             } else {
                 // message to user
-                gameTextLabel.setText(monsters.getName() + " hit you.");
+                monsterMessage = monsters.getName() + " hits you.</html>";
+                playerMessage += monsterMessage;
+                gameTextLabel.setText(playerMessage);
                 gameTextLabel.revalidate();
+                gameTextLabel.repaint();
 
                 player.setHealth(player.getHealth() - monsters.getEnemyAttack());
 
@@ -772,6 +785,11 @@ public class GameGUI extends JFrame {
             if (player.getHealth() <= 0) {
                 // Decrement remaining lives
                 remainingLives--;
+                player.setHealth(0);
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
 
                 // Check if remaining lives are zero
                 if (remainingLives <= 0) {
@@ -799,19 +817,15 @@ public class GameGUI extends JFrame {
                         playerTextLabel.setText("");
                         playerTextLabel.revalidate();
                         playerTextLabel.repaint();
-                        // Add any other actions needed to reset the game state
+
                     } else {
                         // Player doesn't want to continue, perform game over actions
-                        player.setHealth(0);
-                        statsPanel.removeAll();
-                        statsPanel.revalidate();
-                        statsPanel.repaint();
-                        addStatsToPanel(statsPanel);
+
                         playerTextLabel.setText("");
                         playerTextLabel.revalidate();
                         playerTextLabel.repaint();
-                        gameTextLabel.setText(monsters.getName() + " killed you.\n +" +
-                                "Game Over.");
+                        gameTextLabel.setText("<html>" + monsters.getName() + " killed you.\n<br> " +
+                                "Game Over.</html>");
                         gameTextLabel.revalidate();
                         gameTextLabel.repaint();
                         playerAttackButton.setVisible(false);
@@ -960,7 +974,7 @@ public class GameGUI extends JFrame {
                 // message to user
                 monsterMessage = bossMonster.getName() + "'s hit missed you.</html>";
                 playerMessage += monsterMessage;
-
+                gameTextLabel.setText(playerMessage);
                 gameTextLabel.revalidate();
                 gameTextLabel.repaint();
             } else {
@@ -985,6 +999,11 @@ public class GameGUI extends JFrame {
             if (player.getHealth() <= 0) {
                 // Decrement remaining lives
                 remainingLives--;
+                player.setHealth(0);
+                statsPanel.removeAll();
+                statsPanel.revalidate();
+                statsPanel.repaint();
+                addStatsToPanel(statsPanel);
 
                 // Check if remaining lives are zero
                 if (remainingLives <= 0) {
@@ -1015,16 +1034,13 @@ public class GameGUI extends JFrame {
 
                     } else {
                         // Player doesn't want to continue, perform game over actions
-                        player.setHealth(0);
-                        statsPanel.removeAll();
-                        statsPanel.revalidate();
-                        statsPanel.repaint();
-                        addStatsToPanel(statsPanel);
+
+
                         playerTextLabel.setText("");
                         playerTextLabel.revalidate();
                         playerTextLabel.repaint();
-                        gameTextLabel.setText(monsters.getName() + " killed you.\n +" +
-                                "Game Over.");
+                        gameTextLabel.setText("<html>" + bossMonster.getName() + " killed you.\n<br>" +
+                                "Game Over.</html>");
                         gameTextLabel.revalidate();
                         gameTextLabel.repaint();
                         playerAttackButton.setVisible(false);
