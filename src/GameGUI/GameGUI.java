@@ -236,12 +236,22 @@ public class GameGUI extends JFrame {
                 currentRoom = dungeon.getRoom(currentRow,currentColumn);
                 textArea.setVisible(true);
                 textArea.setText(currentRoom.getDescription());
-                playerAttackButton.setVisible(false);
-                leftArrow.setVisible(true);
-                upArrow.setVisible(true);
-                rightArrow.setVisible(true);
+                if (currentRow == 0 && currentColumn == 1) {
+                    playerAttackButton.setVisible(true);
+                    leftArrow.setVisible(false);
+                    upArrow.setVisible(false);
+                    rightArrow.setVisible(false);
+                    bossCombat = true;
+                    inCombat = true;
+                }
+                else {
+                    playerAttackButton.setVisible(false);
+                    leftArrow.setVisible(true);
+                    upArrow.setVisible(true);
+                    rightArrow.setVisible(true);
+                    bossCombat = false;
+                }
                 playerTextLabel.setText(" ");
-                bossCombat = false;
                 bleedCount = 0;
             }
         });
@@ -314,7 +324,7 @@ public class GameGUI extends JFrame {
         Room topRight = new Room("This room is filled with the sound of chirping birds and rustling leaves, creating a stark contrast to the darkness of the dungeon outside.\n" +
                 "Sunlight streams in through a hole in the ceiling, illuminating the space with a warm, golden glow.\n" +
                 "You can't help but feel a sense of relief as you bask in the light, if only for a moment.\n\n\n"+
-                "You are in the top topRight.\n" +
+                "You are in the top right room.\n" +
                 "Your only exit is to the left.\n" +
                 "Where will you go?", true);
 
@@ -584,9 +594,15 @@ public class GameGUI extends JFrame {
             saveToFile.newLine();
             saveToFile.append(String.valueOf(healCount));
             saveToFile.newLine();
+            saveToFile.append(String.valueOf(remainingLives));
+            saveToFile.newLine();
+            saveToFile.append(String.valueOf(deaths));
+            saveToFile.newLine();
             saveToFile.append(String.valueOf(currentRow));
             saveToFile.newLine();
             saveToFile.append(String.valueOf(currentColumn));
+
+
 
 
             gameTextLabel.setText("File saved successfully.");
@@ -616,6 +632,8 @@ public class GameGUI extends JFrame {
             player.setExpToLevelUp(Integer.parseInt(readLoadFile.readLine()));
             dungeon.setLevel(Integer.parseInt(readLoadFile.readLine()));
             healCount = Integer.parseInt(readLoadFile.readLine());
+            remainingLives = Integer.parseInt((readLoadFile.readLine()));
+            deaths = Integer.parseInt(readLoadFile.readLine());
             currentRow = Integer.parseInt(readLoadFile.readLine());
             currentColumn = Integer.parseInt(readLoadFile.readLine());
 
