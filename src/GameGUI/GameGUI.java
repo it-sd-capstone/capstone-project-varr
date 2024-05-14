@@ -1205,6 +1205,7 @@ public class GameGUI extends JFrame {
         // Reset the player's stats to their initial state
         player.setHealth(20);
         player.setAttack(10);
+        player.setLevel(1);
         player.setExperience(0);
         player.setExpToLevelUp(5);
         inCombat = false;
