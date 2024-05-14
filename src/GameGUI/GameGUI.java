@@ -814,6 +814,7 @@ public class GameGUI extends JFrame {
                     // Game over, ask if the player wants to restart or exit
                     int restartChoice = JOptionPane.showConfirmDialog(null, "You were killed by " + monsters.getName() + ". You have no remaining lives. Do you want to restart the game?", "Game Over", JOptionPane.YES_NO_OPTION);
                     if (restartChoice == JOptionPane.YES_OPTION) {
+                        close();
                         restartGame();
                     } else {
                         // Exit the game
@@ -1028,7 +1029,9 @@ public class GameGUI extends JFrame {
                     // Game over, ask if the player wants to restart or exit
                     int restartChoice = JOptionPane.showConfirmDialog(null, "You were killed by " + bossMonster.getName() + ". You have no remaining lives. Do you want to restart the game?", "Game Over", JOptionPane.YES_NO_OPTION);
                     if (restartChoice == JOptionPane.YES_OPTION) {
+                        close();
                         restartGame();
+                        bossCombat = false;
                     } else {
                         // Exit the game
                         System.exit(0);
@@ -1164,6 +1167,7 @@ public class GameGUI extends JFrame {
         } catch (IOException e) {
             System.out.println("Error writing to regular enemy file: " + e.getMessage());
         }
+        dungeon.setLevel(1);
 
         // Write the original boss stats back to the file
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(BOSS_ENEMY_FILE))) {
@@ -1186,6 +1190,8 @@ public class GameGUI extends JFrame {
         initialOrc.setEnemyAttack(10); // Initial attack 10
         initialOrc.setExpDrop(2); // Initial exp drop 2
 
+
+
         // Initialize initial stats for Boss
         initialBoss = Monsters.readMonstersFromFile(INITIAL_BOSS_FILE);
         initialBoss.setName("Level1Boss");
@@ -1200,7 +1206,7 @@ public class GameGUI extends JFrame {
         player.setHealth(20);
         player.setAttack(10);
         player.setExperience(0);
-        player.setLevel(1);
+        player.setExpToLevelUp(5);
         inCombat = false;
         remainingLives = MAX_LIVES;
         deaths = 0;
@@ -1224,6 +1230,8 @@ public class GameGUI extends JFrame {
         rightArrow.setVisible(true);
         upArrow.setVisible(true);
         leftArrow.setVisible(true);
+        close();
+
 
     }
     public static int getWeaponDamage(String weaponFile) {
