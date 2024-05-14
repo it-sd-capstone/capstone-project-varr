@@ -1,103 +1,25 @@
- Hello,
- This file is the only dependency you need if you don't clone the repo. This project has only been ran on IntelliJ so that's the reference I'm gonna be using. 
-[23-lib.zip](https://github.com/it-sd-capstone/capstone-project-varr/files/14962397/23-lib.zip)
+Welcome! This is our final release of Varr Dungeon.
+As per our pitch, we want to...
+Bring retro gaming back. This will be in an old school text-based dungeon
+crawling game using timeless RPG components like defeating monsters to collect valuable loot
+and experience points to increase your character’s power. Your character power will determine
+your fate. If you are too weak the dungeon will eat you up and split out, but if you are powerful
+enough your name will be written in the heavens!!
 
-Create a project first, and then select 
-  1. File > Project Structure
-  2. Select the + and select JARs or Directories
-  3. Choose all the JAR files from the download ./lib
-  4. Change the scope of JAR files beginning wit apiguardian, junit, and opentest(should be nine files) to be test
-  5. Rest should be compile
-  6. Select OK and save selection
 
-To ensure that the validation works, 
-  1. First create a a package for main called edu.cvtc.varr under src
-  2. In the main.java, this is the content of it
+VIDEO LINK:
 
-    package edu.cvtc.varr;
-    
-    import java.sql.*;
-    
-    public class Main {
-        public static final String DATABASE_NAME = "projectVarr ";
-        public static final String DATABASE_PATH = DATABASE_NAME + ".db";
-        private static final int TIMEOUT_STATEMENT_S = 5;
-    
-    
-        public static void main(String[] args) {
-            System.out.println("Hello world!");
-        }
-    
-        public static Connection createConnection() {
-            Connection result = null;
-            try {
-                result = DriverManager.getConnection("jdbc:sqlite:" + DATABASE_PATH);
-                Statement command = result.createStatement();
-                command.setQueryTimeout(TIMEOUT_STATEMENT_S);
-            }
-            catch (Exception e) {
-                System.err.println(e.getMessage());
-                e.printStackTrace();
-            }
-            return result;
-        }
-    
-    
-        public static ResultSet queryRaw(Connection db, String sql) {
-            ResultSet result = null;
-            try {
-                Statement statement = db.createStatement();
-                result = statement.executeQuery(sql);
-            }
-            catch (Exception e) {
-                System.err.println(e.getMessage());
-                e.printStackTrace();
-            }
-            return result;
-        }
-    }
+Instructions on installing our project:
+- Navigate to https://github.com/it-sd-capstone/capstone-project-varr and click on releases on the right hand side
+- This will download the jar file, create a folder(Recommended) and move the zip file into the folder
+- Unzip the file, and click on VarrDunceion.jar
 
-  3. Create another file called test
-  4. Create the edu.cvtc.varr package and create MainTest.java file
-  5. Right-click on test folder and select
-  6. Mark Directory as > Test Sources Root
-  7. This will be the testing code
-     
-    package edu.cvtc.varr;
-    import org.junit.jupiter.api.Test;
-    import static org.junit.jupiter.api.Assertions.*;
-    import java.sql.*;
-    class MainTest {
-        @Test
-        void createConnection() {
-            assertDoesNotThrow(
-                    () -> {
-                        Connection db = Main.createConnection();
-                        assertNotNull(db);
-                        assertFalse(db.isClosed());
-                        db.close();
-                        assertTrue(db.isClosed());
-                    }
-            );
-        }
-    
-        @Test
-        void queryRaw() {
-            assertDoesNotThrow(
-                    () -> {
-                        try (Connection db = Main.createConnection()) {
-                            ResultSet rows = Main.queryRaw(db, "SELECT 5 AS result");
-                            assertNotNull(rows);
-                            assertTrue(rows.next());
-                            int result = rows.getInt("result");
-                            assertEquals(5, result);
-                            rows.close();
-                            db.close();
-                        }
-                    }
-            );
-        }
-    }
-  6. Run MainTest.java and ensure that the tests passes for validation. 
-     
-  
+Testing the project:
+- We tested the project by slowing working in each iteration and then playing the game to see what works and what doesn't
+- We worked on the project one step at a time, so we knew what was working and what wasn't so we were able to easily do testing without being confused
+- We also were able to easily change any enemy stats to test out our leveling system
+
+Running or accessing project
+- There's nothing special to download to run the project
+- Just download from the release, and extract it into a folder
+- Run the jar file that is given.
