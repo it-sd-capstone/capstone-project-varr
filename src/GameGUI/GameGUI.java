@@ -1204,7 +1204,7 @@ public class GameGUI extends JFrame {
         inCombat = false;
         remainingLives = MAX_LIVES;
         deaths = 0;
-        currentRoom = startRoom;
+        currentRoom = dungeon.getRoom(2, 1);
         textArea.setText(currentRoom.getDescription());
         statsPanel.removeAll();
         statsPanel.revalidate();
