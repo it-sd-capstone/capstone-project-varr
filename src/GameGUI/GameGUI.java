@@ -1197,13 +1197,15 @@ public class GameGUI extends JFrame {
 
     private void restartGame() {
         // Reset the player's stats to their initial state
-        player.setHealth(player.getMaxHealth());
+        player.setHealth(20);
         player.setAttack(10);
         player.setExperience(0);
         player.setLevel(1);
         inCombat = false;
         remainingLives = MAX_LIVES;
         deaths = 0;
+        currentRow = 2;
+        currentColumn = 1;
         currentRoom = dungeon.getRoom(2, 1);
         textArea.setText(currentRoom.getDescription());
         statsPanel.removeAll();
