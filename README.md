@@ -7,7 +7,7 @@ your fate. If you are too weak the dungeon will eat you up and split out, but if
 enough your name will be written in the heavens!!
 
 
-VIDEO LINK:
+[VIDEO LINK:](https://cvtc.instructuremedia.com/embed/ad4d67f8-f657-4b73-bb7e-e3054561136a)
 
 Instructions on installing our project:
 - Navigate to https://github.com/it-sd-capstone/capstone-project-varr and click on releases on the right hand side
